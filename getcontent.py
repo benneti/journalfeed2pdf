@@ -49,9 +49,9 @@ def elc(s):
     # get rid of some html directly, like links and special characters...
     for i, part in enumerate(BeautifulSoup(s, "html.parser").text.strip().split("$")):
         if i % 2 == 0: # we are not in math mode so better not use these!
-            for rs in [["{\\deg}", "$^{\\circ}$"],
-                       ["^", "\\^"],
+            for rs in [["^", "\\^"],
                        ["_", "\\_"],
+                       ["{\\deg}", "$^{\\circ}$"],
                        ]:
                 part = part.replace(rs[0], rs[1])
 

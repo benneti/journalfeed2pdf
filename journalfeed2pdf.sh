@@ -1,11 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if test -f content.tex; then
-    mv content.tex content.tex.bac_$(date "+%Y-%m-%d-%H:%M:%S")
+
+if [ -z ${1+x} ]; then
+    fname=journalfeed-$(date "+%Y-%m-%d").pdf
+else
+    if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+        echo "Usage: bash "$0" <output.pdf>"
+        echo "or:    bash "$0
+        echo "The latter will output to journalfeed-"$(date "+%Y-%m-%d")".pdf"
+        exit
+    fi
+    fname=$1
 fi
-python getcontent.py
+
+# variables for the relevant directories
+temp_dir=$(mktemp -d -t journalfeed.XXXXXX)
+script_dir=$(dirname -- "$0")
+pwd_dir=$(pwd)
+
+# get the content and move it to the temp compile directory
+python3 $script_dir/getcontent.py $temp_dir/content.tex
+cp $script_dir/main.tex $temp_dir/main.tex
+# cd and create pdf
+cd $temp_dir
 latexmk -f main.tex
-mv main.pdf journals-$(date "+%Y-%m-%d").pdf
-if test -f content.tex; then
-    mv content.tex content-$(date "+%Y-%m-%d").tex
-fi
+cd $pwd_dir
+mv $temp_dir/main.pdf $fname

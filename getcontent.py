@@ -21,6 +21,7 @@ import datetime
 import re
 import bs4
 from bs4 import BeautifulSoup
+import sys
 
 # changing the query here is used to configure the arxiv see arxiv API for usage
 arxivquery = "search_query=(cat:cond-mat*+OR+cat:quant-ph)"
@@ -217,11 +218,17 @@ if __name__ == "__main__":
     enddate = datetime.date.today()
     timedelta = datetime.timedelta(days=7)
 
+    if len(sys.argv) == 1:
+        print("Usage: python", sys.argv[0], "<output.tex>")
+        sys.exit(2)
+    else:
+        fname = sys.argv[1]
+
     prarticles = get_prarticles()
     naturearticles = get_naturearticles()
     arxivarticles = get_arxivarticles()
 
-    with open("content.tex", "w") as file:
+    with open(fname, "w") as file:
         file.write("\\title{In the Journals}\n")
         file.write("\\date{"+(enddate - timedelta).isoformat()+" to "+enddate.isoformat()+"}\n")
         file.write("\\maketitle\n\n")

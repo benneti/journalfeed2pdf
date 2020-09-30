@@ -36,9 +36,10 @@ prx = "prx"
 prxquantum = "prxquantum"
 prresearch = "prresearch"
 prs = [prl, prxquantum, prresearch, pra, prb]
-
 # for nature we only support nature right now
 # (now config, only research articles are included)
+nature_weekly = ["nature"]
+nature_monthly = ["nmat", "nphys"]
 
 def elc(s):
     """Ensure Latex compatibility of a string s"""
@@ -232,10 +233,11 @@ if __name__ == "__main__":
     # if we are in the first week of the month
     if enddate.day <= 7:
         # include the monthly journal(s) of the nature family
-        naturearticles = get_naturearticles(journals=["nature", "nmat", "nphys"])
+        naturearticles = get_naturearticles(journals=[*nature_weekly,
+                                                      *nature_monthly])
     else:
         # else only include the weekly journal(s)
-        naturearticles = get_naturearticles(journals=["nature"])
+        naturearticles = get_naturearticles(journals=nature_weekly)
     arxivarticles = get_arxivarticles()
 
     with open(fname, "w") as file:
@@ -255,7 +257,7 @@ if __name__ == "__main__":
         file.write("\\clearpage\n")
         file.write("\\section{Nature}\n")
         for article in naturearticles:
-            file.write(article.latex())
+            file.write(article.latex(show_journal=article.journal.lower() != "nature"))
         file.write("\\clearpage\n")
         file.write("\\section{arXiv}\n")
         for article in arxivarticles:

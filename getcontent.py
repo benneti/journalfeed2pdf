@@ -119,6 +119,9 @@ def get_naturearticles(enddate = datetime.date.today(), timedelta = datetime.tim
     Get's the list of current research articles from nature.com/nature/current-issue.
     Outputs a list of Articles.
     """
+    # TODO include nature materials and physics in scraped journals
+    # https://www.nature.com/nmat/current-issue
+    # https://www.nature.com/nphys/current-issue
     startdate = enddate - timedelta
     url_base = "https://www.nature.com"
     url = url_base+"/nature/current-issue"

@@ -17,3 +17,12 @@ Small python script to create a latex compilable file of titles, authors, and ab
 
 ## Usage
 simply run "bash journalfeed2pdf.sh"
+
+## TODO
+- Keyword filter
+- Author filter
+- First show "filtered results" than rest in PDF
+- Journals to add:
+  - Nature Physics, Materials
+  - Maybe switch APS to bs4
+  - Maybe switch arXiv API, see

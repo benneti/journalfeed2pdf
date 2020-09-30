@@ -2,9 +2,10 @@
 Small python script to create a latex with file of titles, authors, and abstracts of scientific papers of the last week (monthly journals are included in the first week of the month).
 
 ## Currently Supported websites:
-- arXiv: via their api (Atom feeds)
-- APS Journals: via their RSS feeds
-- Nature Journals: Using the TOC of the current issue (articles and letters)
+- arXiv: via the API (Atom feeds)
+  To not miss any articles on acident the script shows the articles from 8 days ago until yesterday from arxive.org.
+- APS Journals: via the RSS feeds
+- Nature Journals: Using the TOC of the current issue (research, articles and letters sections)
 
 ## Requirements:
 - Python 3, including

@@ -114,48 +114,48 @@ class Article:
             ret += elc(self.summary)+"\n"
         return ret
 
-def get_naturearticles(enddate = datetime.date.today(), timedelta = datetime.timedelta(days=7)):
+def get_naturearticles(enddate = datetime.date.today(), timedelta = datetime.timedelta(days=7), journals=["nature", "nmat", "nphys"]):
     """
     Get's the list of current research articles from nature.com/nature/current-issue.
     Outputs a list of Articles.
     """
     # TODO include nature materials and physics in scraped journals
-    # https://www.nature.com/nmat/current-issue
-    # https://www.nature.com/nphys/current-issue
     startdate = enddate - timedelta
-    url_base = "https://www.nature.com"
-    url = url_base+"/nature/current-issue"
-    response = requests.get(url)
-    def check_words(words):
-        return lambda x: x and frozenset(words.split()).intersection(x.split())
+    url_base = "https://www.nature.com/"
+    for journal in journals:
+        url = url_base+journal+"/current-issue"
+        response = requests.get(url)
+        def check_words(words):
+            return lambda x: x and frozenset(words.split()).intersection(x.split())
 
-    soup = BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, "html.parser")
 
-    section_tags = soup.find(
-        'div', {'data-container-type': check_words('issue-section-list')}
-    )
+        section_tags = soup.find(
+            'div', {'data-container-type': check_words('issue-section-list')}
+        )
 
-    naturearticles = []
+        naturearticles = []
 
-    for sec in section_tags:
-        sec_title = sec.find('h2')
-        if isinstance(sec_title, bs4.element.Tag) and "Research" in sec_title.contents[0]:
-            for article in sec.findAll('article'):
-                try:
-                    url = url_base+article.find('a', {'itemprop': check_words('url')})['href']
-                except TypeError:
-                    continue
-                title = article.find('h3', {'itemprop': check_words('name headline')}).text.strip()
-                date = article.find('time', {'itemprop': check_words('datePublished')}).text.strip()
-                date = datetime.datetime.strptime(date, "%d %B %Y")
-                authors = article.findAll('li', {'itemprop': check_words('creator')})
-                authors = [a.text.replace(",", "").replace("&\xa0", "").strip() for a in authors]
-                description = "(" + article.find(attrs={'data-test': check_words('article.type')}).text.strip() + ")"
-                abstract = article.find('div', attrs={'itemprop': check_words('description')})
-                if not abstract is None:
-                    description += abstract.text.strip()
-                naturearticles.append(Article(title.replace("\n", ""), url, date, authors, description, "Nature"))
-    return naturearticles
+        for sec in section_tags:
+            sec_title = sec.find('h2')
+            if isinstance(sec_title, bs4.element.Tag) and any(s in sec_title.contents[0] for s in ["Research", "Articles", "Letters"]):
+                for article in sec.findAll('article'):
+                    try:
+                        url = url_base+article.find('a', {'itemprop': check_words('url')})['href']
+                    except TypeError:
+                        continue
+                    title = article.find('h3', {'itemprop': check_words('name headline')}).text.strip()
+                    date = article.find('time', {'itemprop': check_words('datePublished')}).text.strip()
+                    date = datetime.datetime.strptime(date, "%d %B %Y")
+                    authors = article.findAll('li', {'itemprop': check_words('creator')})
+                    authors = [a.text.replace(",", "").replace("&\xa0", "").strip() for a in authors]
+                    description = "(" + article.find(attrs={'data-test': check_words('article.type')}).text.strip() + ")"
+                    abstract = article.find('div', attrs={'itemprop': check_words('description')})
+                    if not abstract is None:
+                        description += abstract.text.strip()
+                    # we do not check for date here because these journals are weekly
+                    naturearticles.append(Article(title.replace("\n", ""), url, date, authors, description, journal))
+        return naturearticles
 
 def parsed_datetime(parsed_date):
     """Parse a feedparser date again to create a datetime object"""
@@ -220,6 +220,7 @@ def get_prarticles(enddate = datetime.date.today(), timedelta = datetime.timedel
 if __name__ == "__main__":
     enddate = datetime.date.today()
     timedelta = datetime.timedelta(days=7)
+    startdate = enddate - timedelta
 
     if len(sys.argv) == 1:
         print("Usage: python", sys.argv[0], "<output.tex>")
@@ -228,14 +229,27 @@ if __name__ == "__main__":
         fname = sys.argv[1]
 
     prarticles = get_prarticles()
-    naturearticles = get_naturearticles()
+    # if we are in the first week of the month
+    if enddate.day <= 7:
+        # include the monthly journal(s) of the nature family
+        naturearticles = get_naturearticles(journals=["nature", "nmat", "nphys"])
+    else:
+        # else only include the weekly journal(s)
+        naturearticles = get_naturearticles(journals=["nature"])
     arxivarticles = get_arxivarticles()
 
     with open(fname, "w") as file:
         file.write("\\title{In the Journals}\n")
-        file.write("\\date{"+(enddate - timedelta).isoformat()+" to "+enddate.isoformat()+"}\n")
+        if startdate.month == enddate.month:
+            file.write("\\newcommand{{\\thedate}}{{{0:%d} to {1:%d %b. %Y}}}\n".format(startdate, enddate))
+        elif startdate.year == enddate.year:
+            file.write("\\newcommand{{\\thedate}}{{{0:%d %b.} to {1:%d %b. %Y}}}\n".format(startdate, enddate))
+        else:
+            file.write("\\newcommand{{\\thedate}}{{{0:%d %b. %Y} to {1:%d %b. %Y}}}\n".format(startdate, enddate))
+        file.write("\\date{\\thedate}\n\n")
         file.write("\\maketitle\n\n")
-        file.write("\\section{APS Journals ("+", ".join(prs)+")}\n")
+        file.write("\\section{APS Journals}\n")
+        file.write("Including the journals "+", ".join(prs)+".\n")
         for article in prarticles:
             file.write(article.latex(show_journal=True))
         file.write("\\clearpage\n")

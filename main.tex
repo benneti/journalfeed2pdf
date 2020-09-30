@@ -1,6 +1,6 @@
 % \documentclass[8pt, a5paper, twocolumn]{extarticle}
 \documentclass[8pt, twocolumn]{extarticle}
-\usepackage[paperwidth=15.7cm, paperheight=20.9cm, margin=0.5cm]{geometry}
+\usepackage[paperwidth=15.7cm, paperheight=20.9cm, margin=0.5cm, top=1cm, headsep=2mm]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 
@@ -16,8 +16,13 @@
 \usepackage{multicol}
 \usepackage[medium,compact]{titlesec}
 \titleformat*{\subsubsection}{\itshape}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead[C]{\leftmark}
+\fancyhead[R]{\thepage}
+\fancyhead[L]{\thedate}
+\fancyfoot[]{}
 
 \begin{document}
-  \pagenumbering{gobble} % disable pagenumbering
   \input{content.tex}
 \end{document}

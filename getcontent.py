@@ -116,14 +116,14 @@ class Article:
             ret += elc(self.summary)+"\n"
         return ret
 
-def get_naturearticles(enddate = datetime.date.today(), timedelta = datetime.timedelta(days=7), journals=["nature", "nmat", "nphys"]):
+def get_naturearticles(enddate = datetime.date.today(),
+                       startdate=datetime.date.today() - datetime.timedelta(days=8),
+                       journals=["nature", "nmat", "nphys"]):
     """
-    Get's the list of current research articles from nature.com/nature/current-issue.
-    Outputs a list of Articles.
+    Get's the list of current research articles from nature.com/<journals>/current-issue.
     """
-    # TODO include nature materials and physics in scraped journals
-    startdate = enddate - timedelta
     url_base = "https://www.nature.com/"
+    naturearticles = []
     for journal in journals:
         url = url_base+journal+"/current-issue"
         response = requests.get(url)
@@ -136,7 +136,6 @@ def get_naturearticles(enddate = datetime.date.today(), timedelta = datetime.tim
             'div', {'data-container-type': check_words('issue-section-list')}
         )
 
-        naturearticles = []
 
         for sec in section_tags:
             sec_title = sec.find('h2')
@@ -148,16 +147,16 @@ def get_naturearticles(enddate = datetime.date.today(), timedelta = datetime.tim
                         continue
                     title = article.find('h3', {'itemprop': check_words('name headline')}).text.strip()
                     date = article.find('time', {'itemprop': check_words('datePublished')}).text.strip()
-                    date = datetime.datetime.strptime(date, "%d %B %Y")
+                    date = datetime.datetime.strptime(date, "%d %B %Y").date()
                     authors = article.findAll('li', {'itemprop': check_words('creator')})
                     authors = [a.text.replace(",", "").replace("&\xa0", "").strip() for a in authors]
                     description = "(" + article.find(attrs={'data-test': check_words('article.type')}).text.strip() + ")"
                     abstract = article.find('div', attrs={'itemprop': check_words('description')})
                     if not abstract is None:
                         description += abstract.text.strip()
-                    # we do not check for date here because these journals are weekly
-                    naturearticles.append(Article(title.replace("\n", ""), url, date, authors, description, journal))
-        return naturearticles
+                    naturearticles.append(Article(title.replace("\n", ""), url,
+                                                  date, authors, description, journal))
+    return naturearticles
 
 def parsed_datetime(parsed_date):
     """Parse a feedparser date again to create a datetime object"""
@@ -239,21 +238,25 @@ if __name__ == "__main__":
     timedelta = datetime.timedelta(days=7)
     startdate = enddate - timedelta
 
-    if len(sys.argv) == 1:
+    if len(sys.argv) != 2:
         print("Usage: python", sys.argv[0], "<output.tex>")
         sys.exit(2)
     else:
+        if any(sys.argv[1] == h for h in ["-h", "--help"]):
+            print("Usage: python", sys.argv[0], "<output.tex>")
+            sys.exit(1)
         fname = sys.argv[1]
 
     prarticles = get_prarticles()
+
     # if we are in the first week of the month
     if enddate.day <= 7:
         # include the monthly journal(s) of the nature family
-        naturearticles = get_naturearticles(journals=[*nature_weekly,
-                                                      *nature_monthly])
+        naturearticles = get_naturearticles(journals=[*nature_weekly, *nature_monthly])
     else:
         # else only include the weekly journal(s)
         naturearticles = get_naturearticles(journals=nature_weekly)
+
     arxivarticles = get_arxivarticles()
 
     with open(fname, "w") as file:
@@ -273,6 +276,7 @@ if __name__ == "__main__":
         file.write("\\clearpage\n")
         file.write("\\section{Nature}\n")
         for article in naturearticles:
+            print(article.journal.lower() != "nature")
             file.write(article.latex(show_journal=article.journal.lower() != "nature"))
         file.write("\\clearpage\n")
         file.write("\\section{arXiv}\n")

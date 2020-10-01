@@ -25,4 +25,4 @@ simply run "bash journalfeed2pdf.sh"
 - First show "filtered results" than rest in PDF
 - Journals to add:
   - Maybe switch APS to bs4
-  - Maybe switch from arXiv API to https://github.com/Mahdisadjadi/arxivscraper
+  - Nature Communications

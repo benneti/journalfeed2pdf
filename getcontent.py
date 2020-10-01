@@ -24,29 +24,28 @@ from bs4 import BeautifulSoup
 import sys
 import time # used for connections to arxiv
 
-# changing the query here is used to configure the arxiv see arxiv API for usage
-arxivquery = "search_query=(cat:cond-mat*+OR+cat:quant-ph)"
+# arxiv
+# see arxiv API for options, here we search for cond-mat and quant-ph articles
+# (logical +OR+)
+arxivquery = "cat:cond-mat*+OR+cat:quant-ph"
 # we get the arxiv articles for one week
 # (starting 8 days ago..., such that we do not miss articles due to not all articles published today)
 
-# add PR journals as one likes
-prl = "prl"
-pra = "pra"
-prb = "prb"
-prx = "prx"
-prxquantum = "prxquantum"
-prresearch = "prresearch"
-prs = [prl, prxquantum, prresearch, pra, prb]
-# for nature we only support nature right now
-# (now config, only research articles are included)
+# APS journals
+prs = ["prl", "prb", "prxquantum", "prresearch", "pra"]
+# nature journals
 nature_weekly = ["nature"]
 nature_monthly = ["nmat", "nphys"]
+# science journals
+science_weekly = ["science"]
+science_monthly = ["advances"]
+
 
 def elc(s):
     """Ensure Latex compatibility of a string s"""
     ret = []
     # ensure even number of $'s
-    if len(re.findall("\$", s)) % 2 != 0:
+    if len(re.findall("\\$", s)) % 2 != 0:
         return "Too many Dollar signs..."
     # get rid of some html directly, like links and special characters...
     for i, part in enumerate(BeautifulSoup(s, "html.parser").text.strip().split("$")):
@@ -83,6 +82,8 @@ class Article:
         self.authors = [elc(a).replace("}", "").replace("{", "") for a in authors]
         self.summary = summary
         self.journal = journal
+
+
     def author_string(self, max_authors=3):
         if max_authors < 2:
             raise ValueError("max_authors needs to be larger than 1.")
@@ -95,6 +96,7 @@ class Article:
             return ", ".join(authors[0:max_authors-2])+", and "+authors[-1]
         else:
             return authors[0]+", ..., and "+authors[-1]
+
 
     def latex(self, max_authors=3, show_journal=False, show_summary=True):
         """
@@ -116,51 +118,106 @@ class Article:
             ret += elc(self.summary)+"\n"
         return ret
 
+
 def get_naturearticles(enddate = datetime.date.today(),
                        startdate=datetime.date.today() - datetime.timedelta(days=8),
                        journals=["nature", "nmat", "nphys"]):
     """
     Get's the list of current research articles from nature.com/<journals>/current-issue.
     """
-    url_base = "https://www.nature.com/"
-    naturearticles = []
+    url_base = "https://www.nature.com"
+    articles = []
     for journal in journals:
-        url = url_base+journal+"/current-issue"
+        url = url_base+"/"+journal+"/current-issue"
         response = requests.get(url)
         def check_words(words):
             return lambda x: x and frozenset(words.split()).intersection(x.split())
 
         soup = BeautifulSoup(response.content, "html.parser")
 
-        section_tags = soup.find(
-            'div', {'data-container-type': check_words('issue-section-list')}
-        )
-
+        section_tags = soup.find('div', {'data-container-type': check_words('issue-section-list')})
 
         for sec in section_tags:
             sec_title = sec.find('h2')
-            if isinstance(sec_title, bs4.element.Tag) and any(s in sec_title.contents[0] for s in ["Research", "Articles", "Letters"]):
-                for article in sec.findAll('article'):
+            if isinstance(sec_title, bs4.element.Tag) and any(s in sec_title.contents[0]
+                                                              for s in ["Research", "Articles", "Letters"]):
+                for article in sec.find_all('article'):
                     try:
                         url = url_base+article.find('a', {'itemprop': check_words('url')})['href']
                     except TypeError:
                         continue
-                    title = article.find('h3', {'itemprop': check_words('name headline')}).text.strip()
-                    date = article.find('time', {'itemprop': check_words('datePublished')}).text.strip()
-                    date = datetime.datetime.strptime(date, "%d %B %Y").date()
-                    authors = article.findAll('li', {'itemprop': check_words('creator')})
-                    authors = [a.text.replace(",", "").replace("&\xa0", "").strip() for a in authors]
-                    description = "(" + article.find(attrs={'data-test': check_words('article.type')}).text.strip() + ")"
-                    abstract = article.find('div', attrs={'itemprop': check_words('description')})
-                    if not abstract is None:
-                        description += abstract.text.strip()
-                    naturearticles.append(Article(title.replace("\n", ""), url,
-                                                  date, authors, description, journal))
-    return naturearticles
+                    if any(s in article.find(attrs={'data-test': check_words('article.type')}).text.strip()
+                           for s in ["Article", "Letter"]):
+                        title = article.find('h3', {'itemprop': check_words('name headline')}).text.strip()
+                        date = article.find('time', {'itemprop': check_words('datePublished')}).text.strip()
+                        date = datetime.datetime.strptime(date, "%d %B %Y").date()
+                        authors = article.find_all('li', {'itemprop': check_words('creator')})
+                        authors = [a.text.replace(",", "").replace("&\xa0", "").strip() for a in authors]
+                        # TODO get real abstract, see science takes very long
+                        # try:
+                        #     soup_art = BeautifulSoup(requests.get(url).content, "html.parser")
+                        #     abstract = soup_art.find("div", {"id": "Abs1-content"}).find("p").text
+                        # except AttributeError:
+                        #     abstract = "No Abstract found"
+                        # naturearticles.append(Article(title.replace("\n", ""), url,
+                        #                           date, authors, abstract, journal))
+                        try:
+                            abstract = article.find('div', attrs={'itemprop': check_words('description')}).find("p").text.strip()
+                        except AttributeError:
+                            abstract = "No Abstract found"
+                        articles.append(Article(title.replace("\n", ""), url,
+                                        date, authors, abstract, journal))
+    return articles
+
+
+def get_sciencearticles(enddate = datetime.date.today(),
+                       startdate=datetime.date.today() - datetime.timedelta(days=8),
+                       journals=["science", "advances"]):
+    """
+    Get's the list of current research articles from <journal>.sciencemag.com.
+    """
+    articles = []
+    for journal in journals:
+        url_base = "https://"+journal+".sciencemag.org"
+        url = url_base+"/content/current"
+        response = requests.get(url)
+        def check_words(words):
+            return lambda x: x and frozenset(words.split()).intersection(x.split())
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        section_tags = soup.find_all(
+            'li', {'class': check_words('issue-toc-section')}
+        )
+
+        for sec in section_tags:
+            sec_title = sec.find('h2')
+            if isinstance(sec_title, bs4.element.Tag) and any(s in sec_title.contents[0] for s in ["Research", "Articles"]):
+                for article in sec.find_all('article'):
+                    try:
+                        url = url_base+article.find('a')['href']
+                    except TypeError:
+                        continue
+                    title = article.find('div', {'class': check_words('highwire-cite-title')}).text.strip()
+                    date = article.find('time').text.strip()
+                    date = datetime.datetime.strptime(date, "%d %b %Y").date()
+
+                    authors = article.find_all('span', {'class': check_words('highwire-citation-author')})
+                    authors = [a.text.strip() for a in authors]
+                    abstract = article.find('div', {'class': check_words('section precis')}).find("p").text.strip()
+                    # try:
+                    #     soup_art = BeautifulSoup(requests.get(url+".abstract").content, "html.parser")
+                    #     abstract = soup_art.find("div", {"class": check_words("abstract")}).find("p").text
+                    # except AttributeError:
+                    #     abstract = "No Abstract found"
+                    articles.append(Article(title.replace("\n", ""), url, date, authors, abstract, journal))
+    return articles
+
 
 def parsed_datetime(parsed_date):
     """Parse a feedparser date again to create a datetime object"""
     return datetime.date(parsed_date.tm_year, parsed_date.tm_mon, parsed_date.tm_mday)
+
 
 def get_arxivarticles(enddate=datetime.date.today(),
                       startdate=datetime.date.today() - datetime.timedelta(days=8),
@@ -174,7 +231,7 @@ def get_arxivarticles(enddate=datetime.date.today(),
         # We use the latter as we are only interested in new papers
         # see https://github.com/ContentMine/getpapers/issues/180
         # and https://github.com/ContentMine/getpapers/wiki/arxiv-query-format
-        url = "https://export.arxiv.org/api/query?" + query + "+AND+submittedDate:["
+        url = "https://export.arxiv.org/api/query?search_query=(" + query + ")+AND+submittedDate:["
         url += startdate.strftime("%Y%m%d")+"0000+TO+"+enddate.strftime("%Y%m%d")+"0000]"
         url += "&start="+str(100*len(feeds))+"&max_results=100&sortBy=submittedDate&sortOrder=descending"
         feeds.append(fp.parse(url))
@@ -190,14 +247,15 @@ def get_arxivarticles(enddate=datetime.date.today(),
             time.sleep(3)
 
 
-    arxivarticles = []
+    articles = []
     for feed in feeds:
         for e in feed.entries:
             published = parsed_datetime(e.published_parsed)
-            arxivarticles.append(Article(e.title.replace("\n", ""), e.link, published,
+            articles.append(Article(e.title.replace("\n", ""), e.link, published,
                                          [a["name"].strip() for a in e.authors], e.summary,
                                          "arXiv"))
-    return arxivarticles
+    return articles
+
 
 def pr_summary_extract(s):
     if "<p>" in s:
@@ -251,11 +309,13 @@ if __name__ == "__main__":
 
     # if we are in the first week of the month
     if enddate.day <= 7:
-        # include the monthly journal(s) of the nature family
+        # include the monthly journal(s) of nature and science families
         naturearticles = get_naturearticles(journals=[*nature_weekly, *nature_monthly])
+        sciencearticles = get_sciencearticles(journals=[*science_weekly, *science_monthly])
     else:
         # else only include the weekly journal(s)
         naturearticles = get_naturearticles(journals=nature_weekly)
+        sciencearticles = get_sciencearticles(journals=science_weekly)
 
     arxivarticles = get_arxivarticles()
 
@@ -270,14 +330,16 @@ if __name__ == "__main__":
         file.write("\\date{\\thedate}\n\n")
         file.write("\\maketitle\n\n")
         file.write("\\section{APS Journals}\n")
-        file.write("Including the journals "+", ".join(prs)+".\n")
         for article in prarticles:
             file.write(article.latex(show_journal=True))
         file.write("\\clearpage\n")
         file.write("\\section{Nature}\n")
         for article in naturearticles:
-            print(article.journal.lower() != "nature")
             file.write(article.latex(show_journal=article.journal.lower() != "nature"))
+        file.write("\\clearpage\n")
+        file.write("\\section{Science}\n")
+        for article in sciencearticles:
+            file.write(article.latex(show_journal=article.journal.lower() != "science"))
         file.write("\\clearpage\n")
         file.write("\\section{arXiv}\n")
         for article in arxivarticles:

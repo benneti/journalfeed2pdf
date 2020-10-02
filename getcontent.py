@@ -48,11 +48,18 @@ def elc(s):
     if len(re.findall("\\$", s)) % 2 != 0:
         return "Too many Dollar signs..."
     # get rid of some html directly, like links and special characters...
-    for i, part in enumerate(BeautifulSoup(s, "html.parser").text.strip().split("$")):
+    # for i, part in enumerate(BeautifulSoup(s, "html.parser").text.strip().split("$")):
+    for i, part in enumerate(re.compile("\\$+|\\\\\\[|\\\\\\]|\\\\\\(|\\\\\\)").split(
+            BeautifulSoup(s, "html.parser").text.strip())):
         if i % 2 == 0: # we are not in math mode so better not use these!
             for rs in [["^", "\\^"],
                        ["_", "\\_"],
                        ["{\\deg}", "$^{\\circ}$"],
+                       ]:
+                part = part.replace(rs[0], rs[1])
+        else: # else we only want $ math => no line breaks and tabbing
+            for rs in [["\\\\", "\\quad"],
+                       ["&", ""]
                        ]:
                 part = part.replace(rs[0], rs[1])
 
@@ -70,6 +77,7 @@ def elc(s):
             part = part.replace(rs[0], rs[1])
         ret.append(part)
     return "$".join(ret)
+
 
 class Article:
     """

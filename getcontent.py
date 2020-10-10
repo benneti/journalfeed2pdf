@@ -22,7 +22,7 @@ import re
 import bs4
 from bs4 import BeautifulSoup
 import sys
-import time # used for connections to arxiv
+import time  # used for connections to arxiv
 
 # arxiv
 # see arxiv API for options, here we search for cond-mat and quant-ph articles
@@ -41,42 +41,79 @@ science_weekly = ["science"]
 science_monthly = ["advances"]
 
 
-def elc(s):
-    """Ensure Latex compatibility of a string s"""
-    ret = []
-    # ensure even number of $'s
-    if len(re.findall("\\$", s)) % 2 != 0:
-        return "Too many Dollar signs..."
-    # get rid of some html directly, like links and special characters...
-    # for i, part in enumerate(BeautifulSoup(s, "html.parser").text.strip().split("$")):
-    for i, part in enumerate(re.compile("\\$+|\\\\\\[|\\\\\\]|\\\\\\(|\\\\\\)").split(
-            BeautifulSoup(s, "html.parser").text.strip())):
-        if i % 2 == 0: # we are not in math mode so better not use these!
-            for rs in [["^", "\\^"],
-                       ["_", "\\_"],
-                       ["{\\deg}", "$^{\\circ}$"],
-                       ]:
-                part = part.replace(rs[0], rs[1])
-        else: # else we only want $ math => no line breaks and tabbing
-            for rs in [["\\\\", "\\quad"],
-                       ["&", ""]
-                       ]:
-                part = part.replace(rs[0], rs[1])
+# Here we can configure
+# environmants for math
+latex_math_envs = ["equation", "align"]
+latex_math_matchers = ["(\\$)([^\\$]+)(\\$)", "(\\$\\$)([^\\$]+)(\\$\\$)",
+                       "(\\\\\\[)((?:.(?!\\\\\\]))*.)(\\\\\\])", "(\\\\\\()((?:.(?!\\\\\\)))*.)(\\\\\\))",
+                       "(\\\\begin\\{(?P<env>"+"|".join(latex_math_envs)+")\\*?\\})(.+(?!(?P=env)))(\\\\end\\{(?P=env)\\*?\\})"]
+latex_math_regex = re.compile("("+"|".join(latex_math_matchers)+")", flags=re.DOTALL)
 
-        for rs in [["&amp;", "\\&"],
-                   ["&quot;", '"'],
-                   ["&gt;", ">"],
-                   ["&lt;", "<"],
-                   ["\\%", "%"], # ensure no escaped %
-                   ["%", "\\%"],
-                   ["\\cite", ""],
-                   ["\\mathbit", ""],
-                   ["o", "o"],
-                   [" & ", " \\& "]
-                   ]:
-            part = part.replace(rs[0], rs[1])
-        ret.append(part)
-    return "$".join(ret)
+# supports regexp (needs to be escaped accordingly)
+# the general sub is applied last after \\ are stripped
+latex_general_sub = [("cite\\{([^}]+)\\}", "[\\1]"),  # citekeys are pointless as we do not have the bib file
+                     ("mathbit", ""),
+                     ("o", "o")]
+# Add things that should have a backslash here, as we strip all backslashes outside math
+# right now this does not support keeping the matches of groups
+latex_outside_math_sub = [("{\\\\deg}", "$^{\\\\circ}$"),
+                          ("\\\\'", "\\\\'")]
+# latex commands that do not make sense without the backslash (no regexp)
+latex_prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "^", "_", "&" ,"$", "%"]
+# ensure no unescaped %
+for command in latex_prepend_backslash:
+    latex_outside_math_sub.append(((re.compile("\\\\*"+re.escape(command))), "\\\\"+command))
+# here we ensure no newlines and tabbing in math
+# , ("\\\\begin\\{aligned\\}(.+(?!aligned))\\\\end\\{aligned\\}", "\\1")
+latex_inside_math_sub = [("\\\\\\\\", "\\\\ "),
+                         ("([^\\\\])%", "\\1\\\\%"),
+                         ("\\&", "")]
+
+
+def find_all_latex_math(s, math_regex=latex_math_regex):
+    """Search for all valid latex environments, returns a list of list [[whole match, begin, content, end],...]"""
+    math_matches = latex_math_regex.findall(s)
+    math_matches = [[j for j in i if j != ""] for i in math_matches]
+    for i in math_matches:
+        if len(i) == 5:
+            del i[2]
+    return math_matches
+
+
+def elc(s, general_sub=latex_general_sub,
+        outside_math_sub=latex_outside_math_sub,
+        inside_math_sub=latex_inside_math_sub):
+    """Ensure Latex compatibility of a string s"""
+    # first use BeautifulSoup to get rid of html artefacts
+    ret = BeautifulSoup(s, "html.parser").text.strip()
+
+    ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)   # require is used in math by MATHJAX to load additional packages
+
+    if len(re.findall("\\{", ret)) != len(re.findall("\\}", ret)):
+        return "Amount of curly braces not balanced."
+
+
+    math_matches = find_all_latex_math(s)
+    for i, match in enumerate(math_matches):
+        ret = ret.replace(match[0], "MATH{}MATH".format(i))
+        for find, replace in inside_math_sub:
+            match[2] = re.sub(find, replace, match[2])
+
+    for i, finrep in enumerate(outside_math_sub):
+        ret = re.sub(finrep[0], "OUTSIDE{}OUTSIDE".format(i), ret)
+
+    ret = ret.replace("\\", "")
+
+    for i, finrep in enumerate(outside_math_sub):
+        ret = re.sub("OUTSIDE{}OUTSIDE".format(i), finrep[1], ret)
+
+    for i, match in enumerate(math_matches):
+        ret = ret.replace("MATH{}MATH".format(i), "$"+match[2]+"$")
+
+    for find, replace in general_sub:
+        ret = re.sub(find, replace, ret)
+
+    return ret.strip()
 
 
 class Article:
@@ -251,7 +288,7 @@ def get_arxivarticles(enddate=datetime.date.today(),
             cond = True
         if len(feeds) * 100 >= totalresults or retry > 5:
             cond = False
-        if cond: # arxiv asks users to wait for 3 seconds between queries
+        if cond:  # arxiv asks users to wait for 3 seconds between queries
             time.sleep(3)
 
 
@@ -300,6 +337,7 @@ def get_prarticles(enddate = datetime.date.today(), timedelta = datetime.timedel
     return prarticles
 
 if __name__ == "__main__":
+    # enddate = datetime.date(2020, 10, 9)
     enddate = datetime.date.today()
     timedelta = datetime.timedelta(days=7)
     startdate = enddate - timedelta
@@ -318,12 +356,16 @@ if __name__ == "__main__":
     # if we are in the first week of the month
     if enddate.day <= 7:
         # include the monthly journal(s) of nature and science families
-        naturearticles = get_naturearticles(journals=[*nature_weekly, *nature_monthly])
-        sciencearticles = get_sciencearticles(journals=[*science_weekly, *science_monthly])
+        naturearticles = get_naturearticles(journals=[*nature_weekly, *nature_monthly],
+                                            enddate=enddate, startdate=startdate)
+        sciencearticles = get_sciencearticles(journals=[*science_weekly, *science_monthly],
+                                              enddate=enddate, startdate=startdate)
     else:
         # else only include the weekly journal(s)
-        naturearticles = get_naturearticles(journals=nature_weekly)
-        sciencearticles = get_sciencearticles(journals=science_weekly)
+        naturearticles = get_naturearticles(journals=nature_weekly,
+                                            enddate=enddate, startdate=startdate)
+        sciencearticles = get_sciencearticles(journals=science_weekly,
+                                              enddate=enddate, startdate=startdate)
 
     arxivarticles = get_arxivarticles()
 

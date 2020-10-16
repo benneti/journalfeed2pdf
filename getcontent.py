@@ -52,7 +52,7 @@ latex_math_regex = re.compile("("+"|".join(latex_math_matchers)+")", flags=re.DO
 # supports regexp (needs to be escaped accordingly)
 # the general sub is applied last after \\ are stripped
 latex_general_sub = [("cite\\{([^}]+)\\}", "[\\1]"),  # citekeys are pointless as we do not have the bib file
-                     ("mathbit", ""),
+                     ("\\\\*mathbit", ""),  # we need the backslash, else we can be left with a backslash that destroys everything
                      ("o", "o")]
 # Add things that should have a backslash here, as we strip all backslashes outside math
 # right now this does not support keeping the matches of groups
@@ -65,9 +65,12 @@ for command in latex_prepend_backslash:
     latex_outside_math_sub.append(((re.compile("\\\\*"+re.escape(command))), "\\\\"+command))
 # here we ensure no newlines and tabbing in math
 # , ("\\\\begin\\{aligned\\}(.+(?!aligned))\\\\end\\{aligned\\}", "\\1")
-latex_inside_math_sub = [("\\\\\\\\", "\\\\ "),
-                         ("([^\\\\])%", "\\1\\\\%"),
-                         ("\\&", "")]
+latex_inside_math_sub = [("\\\\\\\\", "\\\\ "), # newline to space
+                         ("([^\\\\])%", "\\1\\\\%"), # escape %
+                         ("([^\\\\])#", "\\1\\\\%"), # escape #
+                         ("\\&", ""),
+                         # if something does not start with a small letter it probably is not a latex command
+                         ("\\\\([A-Z0-9])", "\\1")]
 
 
 def find_all_latex_math(s, math_regex=latex_math_regex):
@@ -89,9 +92,10 @@ def elc(s, general_sub=latex_general_sub,
 
     ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)   # require is used in math by MATHJAX to load additional packages
 
-    if len(re.findall("\\{", ret)) != len(re.findall("\\}", ret)):
+    if (len(re.findall("\\{", ret)) != len(re.findall("\\}", ret))):
         return "Amount of curly braces not balanced."
-
+    if (len(re.findall("\\\\\\{", ret)) != len(re.findall("\\\\\\}", ret))):
+        return "Amount of curly braces not balanced."
 
     math_matches = find_all_latex_math(s)
     for i, match in enumerate(math_matches):
@@ -121,12 +125,12 @@ class Article:
     Container for an article (title, url, date, authors, summary, journal)
     """
     def __init__(self, title, url, date, authors, summary, journal):
-        self.title = title
+        self.title = elc(title)
         self.url = url
         self.date = date
         self.authors = [elc(a).replace("}", "").replace("{", "") for a in authors]
-        self.summary = summary
-        self.journal = journal
+        self.summary = elc(summary)
+        self.journal = elc(journal)
 
 
     def author_string(self, max_authors=3):
@@ -149,7 +153,7 @@ class Article:
         """
         # write the title in a subsection and use href for url
         ret = "\\subsection*{\\href{"+self.url+"}{"
-        ret += elc(self.title)+"}}\n"
+        ret += self.title+"}}\n"
         # write the authors and date in a subsubsection
         ret += "\\subsubsection*{"
         ret += self.author_string(max_authors=max_authors).replace("...", "\\dots")
@@ -160,7 +164,7 @@ class Article:
         ret += ")}\n"
         # also add the summary/abstract
         if show_summary:
-            ret += elc(self.summary)+"\n"
+            ret += self.summary+"\n"
         return ret
 
 

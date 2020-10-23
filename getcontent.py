@@ -69,29 +69,30 @@ latex_inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                          ("([^\\\\])%", "\\1\\\\%"),  # escape %
                          ("([^\\\\])#", "\\1\\\\%"),  # escape #
                          ("\\&", ""),
-                         # if something does not start with a small letter it probably is not a latex command
-                         ("\\\\([A-Z0-9])", "\\1"),
                          # whitelist of capital letter commands
-                         ("(Delta)", "\\\\\\1"),
-                         ("(Gamma)", "\\\\\\1"),
-                         ("(Omega)", "\\\\\\1"),
-                         ("(Lambda)", "\\\\\\1"),
-                         ("(Phi)", "\\\\\\1"),
-                         ("(Pi)", "\\\\\\1"),
-                         ("(Psi)", "\\\\\\1"),
-                         ("(Sigma)", "\\\\\\1"),
-                         ("(Theta)", "\\\\\\1"),
-                         ("(Upsilon)", "\\\\\\1"),
-                         ("(Vert)", "\\\\\\1"),
-                         ("(Xi)", "\\\\\\1"),
-                         ("(Leftrightarrow)", "\\\\\\1"),
-                         ("(Leftarrow)", "\\\\\\1"),
-                         ("(Rightarrow)", "\\\\\\1"),
-                         ("(Longleftrightarrow)", "\\\\\\1"),
-                         ("(Longleftarrow)", "\\\\\\1"),
-                         ("(Longrightarrow)", "\\\\\\1"),
-                         ("(Im)", "\\\\\\1"),
-                         ("(Re)", "\\\\\\1")]
+                         # Double escape, because in the end we strip some \
+                         ("(\\\\Delta)", "\\\\\\1"),
+                         ("(\\\\Gamma)", "\\\\\\1"),
+                         ("(\\\\Omega)", "\\\\\\1"),
+                         ("(\\\\Lambda)", "\\\\\\1"),
+                         ("(\\\\Phi)", "\\\\\\1"),
+                         ("(\\\\Pi)", "\\\\\\1"),
+                         ("(\\\\Psi)", "\\\\\\1"),
+                         ("(\\\\Sigma)", "\\\\\\1"),
+                         ("(\\\\Theta)", "\\\\\\1"),
+                         ("(\\\\Upsilon)", "\\\\\\1"),
+                         ("(\\\\Vert)", "\\\\\\1"),
+                         ("(\\\\Xi)", "\\\\\\1"),
+                         ("(\\\\Leftrightarrow)", "\\\\\\1"),
+                         ("(\\\\Leftarrow)", "\\\\\\1"),
+                         ("(\\\\Rightarrow)", "\\\\\\1"),
+                         ("(\\\\Longleftrightarrow)", "\\\\\\1"),
+                         ("(\\\\Longleftarrow)", "\\\\\\1"),
+                         ("(\\\\Longrightarrow)", "\\\\\\1"),
+                         ("(\\\\Im)", "\\\\\\1"),
+                         ("(\\\\Re)", "\\\\\\1"),
+                         # if something does not start with a small letter it probably is not a latex command
+                         ("\\\\([A-Z0-9])", "\\1")]
 
 
 def find_all_latex_math(s, math_regex=latex_math_regex):

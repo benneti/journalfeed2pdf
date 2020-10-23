@@ -65,9 +65,9 @@ for command in latex_prepend_backslash:
     latex_outside_math_sub.append(((re.compile("\\\\*"+re.escape(command))), "\\\\"+command))
 # here we ensure no newlines and tabbing in math
 # , ("\\\\begin\\{aligned\\}(.+(?!aligned))\\\\end\\{aligned\\}", "\\1")
-latex_inside_math_sub = [("\\\\\\\\", "\\\\ "), # newline to space
-                         ("([^\\\\])%", "\\1\\\\%"), # escape %
-                         ("([^\\\\])#", "\\1\\\\%"), # escape #
+latex_inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
+                         ("([^\\\\])%", "\\1\\\\%"),  # escape %
+                         ("([^\\\\])#", "\\1\\\\%"),  # escape #
                          ("\\&", ""),
                          # if something does not start with a small letter it probably is not a latex command
                          ("\\\\([A-Z0-9])", "\\1"),
@@ -347,13 +347,13 @@ def get_prarticles(enddate = datetime.date.today(), timedelta = datetime.timedel
             if startdate <= published <= enddate:
                 authors = []
                 for aths in e.authors:
-                    if "and" in aths["name"]:
+                    if " and " in aths["name"]:
                         ath1, ath2 = aths["name"].strip().replace(".\u2009T.", ".").split(" and ", 1)
                         for a in ath1.split(", "):
                             a = a.strip()
                             if a != "":
                                 authors.append(a)
-                                authors.append(ath2.strip())
+                        authors.append(ath2.strip())
                     else:
                         authors.append(aths["name"].strip())
                 prarticles.append(Article(e.title.replace("\n", ""), e.link, published,

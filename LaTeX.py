@@ -34,7 +34,8 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("([^\\\\])#", "\\1\\\\%"),  # escape #
                    ("\\&", ""),  # no amperes and
                    ("\\\\left", ""),  # no left and rights, just to be on the save side
-                   ("\\\\right", "")]
+                   ("\\\\right", ""),
+                   ("\\{\\\\bf\\s(.+)\\}", "\\\\mathbf{\\1}")]
 
 # we strip backslashes from commands not in the whitelist to ensure we do not get problems with custom commands
 # Mind that we only strip backslashes infront of a-z, A-Z, and 0-9
@@ -42,7 +43,7 @@ math_command_whitelist = [
     "alpha", "aleph", "beta", "chi", "delta", "partial", "epsilon", "varepsilon", "exists", "eta", "gamma", "kappa", "lambda", "mu", "nu", "nabla", "omega", "pi", "varpi", "psi", "varphi", "phi", "tau", "theta", "vartheta", "rho", "varrho", "sigma", "upsilon", "varsigma", "vee", "xi", "zeta"
     "ll", "leq", "le", "gg", "geq", "ge", "approx", "equiv", "simeq", "sim",
     "cdot", "cdots", "dots",
-    "dag", "infty", "hbar"
+    "dag", "infty", "hbar",
     "Delta", "Gamma", "Omega", "Lambda", "Phi", "Pi", "Psi", "Sigma", "Theta", "Upsilon", "Xi", "Zeta",
     "Re", "Im", "Vert",
     "Leftrightarrow", "Leftarrow", "Rightarrow", "Longleftrightarrow", "Longleftarrow", "Longrightarrow", "wedge",
@@ -53,7 +54,10 @@ math_command_whitelist = [
     "sum", "cup", "times", "prod", "otimes", "propto", "circ", "setminus", "forall", "emptyset", "wedge", "subset", "supset",
     "quad", "qquad", "hat", "langle", "rangle",
     # "bra", "ket", "norm", "abs", "braket", "comm", "acomm", "proj", "ev", "eval",  # these are actually not avaible
-    "mathrm", "text", "mathbf"]
+    "mathrm", "text", "mathbf", "mathbb"]
+
+math_command_whitlist_regex = "("+"|".join(math_command_whitelist)+")"
+
 math_env_whitelist = [ "cases", "matrix", "pmatrix", "array" ]
 
 
@@ -89,11 +93,9 @@ def elc(s, general_sub=general_sub,
         for find, replace in inside_math_sub:
             match[2] = re.sub(find, replace, match[2])
         # try to clever strip "bad" backslashes:
-        for command in math_command_whitelist:
-            # for backslash after a command add a space bevore the backslash to ensure commands are split
-            match[2] = re.sub(command+"(\\\\)", command+" \\1", match[2])
-            # after a command a backslash, whitespace, a bracket or the end of the string are allowed
-            match[2] = re.sub("\\\\"+command+"(\\\\|\\s|\\{|\\}|\\(|\\)|\\[|\\]|\\Z)", "\\\\\\\\"+command+"\\1", match[2])
+        match[2] = re.sub(math_command_whitlist_regex+"(\\\\)", "\\1 \\2", match[2])
+        # after a command a backslash, whitespace, a bracket or the end of the string are allowed
+        match[2] = re.sub("\\\\"+math_command_whitlist_regex+"(\\\\|\\s|\\{|\\}|\\(|\\)|\\[|\\]|=|\\Z)", "\\\\\\\\\\1\\2", match[2])
         regex = "(\\\\begin\\{(?P<env>"+"|".join(math_env_whitelist)+")\\*?\\})(.+(?!(?P=env)))(\\\\end\\{(?P=env)\\*?\\})"
         match[2] = re.sub(regex, "\\\\\\1\\3\\\\\\4", match[2])
         match[2] = re.sub("\\\\([a-zA-Z0-9])", "\\1", match[2])

@@ -95,9 +95,11 @@ class Article:
 
 def get_naturearticles(enddate = datetime.date.today(),
                        startdate=datetime.date.today() - datetime.timedelta(days=8),
-                       journals=["nature", "nmat", "nphys"]):
+                       journals=["nature", "nmat", "nphys"], **kwargs):
     """
     Get's the list of current research articles from nature.com/<journals>/current-issue.
+
+    Unsupported kwargs are passed on to the article contructor.
     """
     url_base = "https://www.nature.com"
     articles = []
@@ -140,15 +142,17 @@ def get_naturearticles(enddate = datetime.date.today(),
                         except AttributeError:
                             abstract = "No Abstract found"
                         articles.append(Article(title.replace("\n", ""), url,
-                                        date, authors, abstract, journal))
+                                                date, authors, abstract, journal, **kwargs))
     return articles
 
 
 def get_sciencearticles(enddate = datetime.date.today(),
                        startdate=datetime.date.today() - datetime.timedelta(days=8),
-                       journals=["science", "advances"]):
+                        journals=["science", "advances"], **kwargs):
     """
     Get's the list of current research articles from <journal>.sciencemag.com.
+
+    Unsupported kwargs are passed on to the article contructor.
     """
     articles = []
     for journal in journals:
@@ -184,7 +188,7 @@ def get_sciencearticles(enddate = datetime.date.today(),
                     #     abstract = soup_art.find("div", {"class": check_words("abstract")}).find("p").text
                     # except AttributeError:
                     #     abstract = "No Abstract found"
-                    articles.append(Article(title.replace("\n", ""), url, date, authors, abstract, journal))
+                    articles.append(Article(title.replace("\n", ""), url, date, authors, abstract, journal, **kwargs))
     return articles
 
 
@@ -195,9 +199,12 @@ def parsed_datetime(parsed_date):
 
 def get_arxivarticles(enddate=datetime.date.today(),
                       startdate=datetime.date.today() - datetime.timedelta(days=8),
-                      query=arxivquery, id_list=""):
+                      query=arxivquery, id_list="", **kwargs):
     """get arxiv articles from startdate 00:00 to enddate 00:00.
-    If an id_list is provided start and end dates are ignored."""
+    If an id_list is provided start and end dates are ignored.
+
+    Unsupported kwargs are passed on to the article contructor.
+    """
     feeds = []
     cond = True
     retry = 0
@@ -232,7 +239,7 @@ def get_arxivarticles(enddate=datetime.date.today(),
             published = parsed_datetime(e.published_parsed)
             articles.append(Article(e.title.replace("\n", ""), e.link, published,
                                          [a["name"].strip() for a in e.authors], e.summary,
-                                         "arXiv"))
+                                         "arXiv", **kwargs))
     return articles
 
 
@@ -242,7 +249,7 @@ def pr_summary_extract(s):
     return s
 
 
-def get_prarticles(enddate = datetime.date.today(), timedelta = datetime.timedelta(days=7), journals = prs):
+def get_prarticles(enddate = datetime.date.today(), timedelta = datetime.timedelta(days=7), journals = prs, **kwargs):
     startdate = enddate - timedelta
 
     feeds = []
@@ -267,7 +274,7 @@ def get_prarticles(enddate = datetime.date.today(), timedelta = datetime.timedel
                         authors.append(aths["name"].strip())
                 prarticles.append(Article(e.title.replace("\n", ""), e.link, published,
                                           authors, pr_summary_extract(e.summary),
-                                          e.summary_detail["base"].split("/")[-1].replace(".xml", "")))
+                                          e.summary_detail["base"].split("/")[-1].replace(".xml", ""), **kwargs))
     return prarticles
 
 if __name__ == "__main__":

@@ -53,7 +53,7 @@ math_command_whitelist = [
     "to", "leftrightarrow", "leftarrow", "rightarrow", "longleftrightarrow", "longleftarrow", "longrightarrow", "uparrow", "downarrow",
     "parallel", "perp", "mapsto", "longmapsto", "not", "prime",
     "binom", "sqrt", "overset", "int", "frac", "in",
-    "tan", "cos", "exp", "ln", "sin",
+    "exp", "ln", "log", "cos", "sin", "tan",
     "sum", "cup", "times", "prod", "otimes", "propto", "circ", "setminus", "forall", "emptyset", "wedge", "subset", "supset",
     "quad", "qquad", "hat", "langle", "rangle",
     # "bra", "ket", "norm", "abs", "braket", "comm", "acomm", "proj", "ev", "eval",  # these are actually not avaible

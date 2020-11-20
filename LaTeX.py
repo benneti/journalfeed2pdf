@@ -37,6 +37,7 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("\\\\left", ""),  # no left and rights, just to be on the save side
                    ("\\\\right", ""),
                    ("\\\\textit", ""),  # textit is useless in math mode
+                   ("([\\^_])(\\\\[^\\{\s]+)(\w|\\{[^\\}]+\\})", "\\1{\\2\\3}"),  # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}")]
 
 # we strip backslashes from commands not in the whitelist to ensure we do not get problems with custom commands

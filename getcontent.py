@@ -21,8 +21,9 @@ import datetime
 import bs4
 from bs4 import BeautifulSoup
 import sys
+from Article import Article
+from Article import match
 import time  # used for connections to arxiv
-from LaTeX import elc
 # arxiv
 # see arxiv API for options, here we search for cond-mat and quant-ph articles
 # (logical +OR+)
@@ -38,59 +39,6 @@ nature_monthly = ["nmat", "nphys"]
 # science journals
 science_weekly = ["science"]
 science_monthly = ["advances"]
-
-
-class Article:
-    """
-    Container for an article (title, url, date, authors, summary, journal)
-    """
-    def __init__(self, title, url, date, authors, summary, journal, ensure_latex=True):
-        def _elc(s):
-            if ensure_latex:
-                return elc(s)
-            else:
-                return s
-        self.title = _elc(title)
-        self.url = url
-        self.date = date
-        self.authors = [_elc(a).replace("}", "").replace("{", "") for a in authors]
-        self.summary = _elc(summary)
-        self.journal = _elc(journal)
-
-
-    def author_string(self, max_authors=3):
-        if max_authors < 2:
-            raise ValueError("max_authors needs to be larger than 1.")
-        authors = self.authors
-        if len(authors) == 1:
-            return authors[0]
-        elif len(authors) == 2:
-            return authors[0]+" and "+authors[1]
-        elif len(authors) <= max_authors:
-            return ", ".join(authors[0:max_authors-2])+", and "+authors[-1]
-        else:
-            return authors[0]+", ..., and "+authors[-1]
-
-
-    def latex(self, max_authors=3, show_journal=False, show_summary=True):
-        """
-        Create a latex compatible string for an article.
-        """
-        # write the title in a subsection and use href for url
-        ret = "\\subsection*{\\href{"+self.url+"}{"
-        ret += self.title+"}}\n"
-        # write the authors and date in a subsubsection
-        ret += "\\subsubsection*{"
-        ret += self.author_string(max_authors=max_authors).replace("...", "\\dots")
-        ret += " ("+self.date.isoformat()
-        # if wished for also show the journal
-        if show_journal:
-            ret += " "+self.journal
-        ret += ")}\n"
-        # also add the summary/abstract
-        if show_summary:
-            ret += self.summary+"\n"
-        return ret
 
 
 def get_naturearticles(enddate = datetime.date.today(),
@@ -310,6 +258,7 @@ if __name__ == "__main__":
 
     arxivarticles = get_arxivarticles()
 
+
     with open(fname, "w") as file:
         file.write("\\title{In the Journals}\n")
         if startdate.month == enddate.month:
@@ -320,18 +269,37 @@ if __name__ == "__main__":
             file.write("\\newcommand{{\\thedate}}{{{0:%d %b. %Y} to {1:%d %b. %Y}}}\n".format(startdate, enddate))
         file.write("\\date{\\thedate}\n\n")
         file.write("\\maketitle\n\n")
+
+        unmatchedarticles = []
+
         file.write("\\section{APS Journals}\n")
         for article in prarticles:
-            file.write(article.latex(show_journal=True))
+            if match(article):
+                file.write(article.latex(show_journal=True))
+            else:
+                unmatchedarticles.append(article)
         file.write("\\clearpage\n")
         file.write("\\section{Nature}\n")
         for article in naturearticles:
-            file.write(article.latex(show_journal=article.journal.lower() != "nature"))
+            if match(article):
+                file.write(article.latex(show_journal=article.journal.lower() != "nature"))
+            else:
+                unmatchedarticles.append(article)
         file.write("\\clearpage\n")
         file.write("\\section{Science}\n")
         for article in sciencearticles:
-            file.write(article.latex(show_journal=article.journal.lower() != "science"))
+            if match(article):
+                file.write(article.latex(show_journal=article.journal.lower() != "science"))
+            else:
+                unmatchedarticles.append(article)
         file.write("\\clearpage\n")
         file.write("\\section{arXiv}\n")
         for article in arxivarticles:
-            file.write(article.latex()+"\n")
+            if match(article):
+                file.write(article.latex())
+            else:
+                unmatchedarticles.append(article)
+        file.write("\\clearpage\n")
+        file.write("\\section{Unmatched Articles}\n")
+        for article in unmatchedarticles:
+            file.write(article.latex(show_journal=True))

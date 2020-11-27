@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 import re  # used to better ensure compiling latex!
 from bs4 import BeautifulSoup  # used to get rid of HTML stuff
+# journalfeed2pdf -- python script to get content from the web
+# Copyright (C) 2020 Benedikt Tissot
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# TODO abstracts with problems:
+# https://arxiv.org/abs/2011.06230v1 ({\\cal ...})
+# https://arxiv.org/abs/2011.07139v1 ({\\rm ...})
 
 # Here we can configure
 # environmants for math
@@ -12,6 +31,7 @@ math_regex = re.compile("("+"|".join(math_matchers)+")", flags=re.DOTALL)
 
 # supports regexp (needs to be escaped accordingly)
 # the general sub bevore is applied bevore \\ are stripped
+# We allow utf-8 in our file, so we might as well use it
 general_sub_bevore = [('\\\\"o', "ö"),
                       ('\\\\"a', "ä"),
                       ('\\\\"u', "ü")]
@@ -21,8 +41,11 @@ general_sub = [("cite\\{([^}]+)\\}", "[\\1]"),  # citekeys are pointless as we d
                ("o", "o")]
 # Add things that should have a backslash here, as we strip all backslashes outside math
 # right now this does not support keeping the matches of groups
+# matches before backslashes are stripped (and replaces it with temporary string)
+# after stripping the second string is inserted
 outside_math_sub = [("{\\\\deg}", "$^{\\\\circ}$"),
-                          ("\\\\'", "\\\\'")]
+                    ("#", "\\\\#"),
+                    ("\\\\'", "\\\\'")]
 # latex commands that do not make sense without the backslash (no regexp)
 prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "^", "_", "&" ,"$", "%"]
 # ensure no unescaped %
@@ -57,7 +80,7 @@ math_command_whitelist = [
     "binom", "sqrt", "overset", "int", "frac", "in",
     "exp", "ln", "log", "cos", "sin", "tan",
     "sum", "cup", "times", "prod", "otimes", "propto", "circ", "setminus", "forall", "emptyset", "wedge", "subset", "supset",
-    "quad", "qquad", "hat", "langle", "rangle",
+    "quad", "qquad", "hat", "widehat", "langle", "rangle",
     # "bra", "ket", "norm", "abs", "braket", "comm", "acomm", "proj", "ev", "eval",  # these are actually not avaible
     "mathrm", "text", "mathbf", "mathbb", "mathcal", "overline"]
 

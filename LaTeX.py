@@ -60,8 +60,12 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("\\\\left", ""),  # no left and rights, just to be on the save side
                    ("\\\\right", ""),
                    ("\\\\textit", ""),  # textit is useless in math mode
-                   ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),  # special treatment of frac for the below
-                   ("([\\^_])(\\\\[^\\{\s]+)(\w|\\{[^\\}]+\\})", "\\1{\\2\\3}"),  # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
+                   # special treatment of frac for the below
+                   ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),
+                   # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
+                   ("([\\^_])(\\\\[^\\{\s]+)(\w|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
+                   # no consecutive sub (super) scripts
+                   ("(?P<s>[\\^_])([^\\{]|\\{[^\\}]+\\})(?P=s)([^\\{]|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
                    ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}")]
 
 # we strip backslashes from commands not in the whitelist to ensure we do not get problems with custom commands

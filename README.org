@@ -1,0 +1,33 @@
+* journalfeed2pdf
+Small python script to create a latex with file of titles, authors, and abstracts of scientific papers of the last week (monthly journals are included in the first week of the month).
+
+** Currently Supported websites:
+- arXiv: via the API (Atom feeds)
+  To not miss any articles on accident the script shows the articles from 8 days ago until yesterday from arxive.org.
+- APS Journals: via the RSS feeds
+- Nature Journals: Using the TOC of the current issue (research, articles and letters sections)
+
+** Requirements:
+- ~Python 3~, including
+  - ~feedparser~
+  - ~requests~
+  - ~datetime~
+  - ~re~
+  - ~bs4~ (~BeautifulSoup~)
+- ~Latex~
+
+** Filtering articles
+- To filter articles differently edit ~summary_res~, ~title_res~, and ~authors~.
+- Add an pure ASCII version of strings containing special characters!
+
+** Usage
+simply run
+#+begin_src bash
+bash journalfeed2pdf.sh
+#+end_src
+
+** TODO [0/3]
+- [ ] Configuration file!
+- [ ] Nix Flake file to simplify dependencies
+- [ ] Journals to add:
+  - [ ] Nature Communications

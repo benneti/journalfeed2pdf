@@ -17,7 +17,7 @@ Small python script to create a latex with file of titles, authors, and abstract
 - ~Latex~
 
 ** Filtering articles
-- To filter articles differently edit ~summary_res~, ~title_res~, and ~authors~.
+- To filter articles differently edit ~summary_res~, ~title_res~, and ~authors~ in [[./Article.py]].
 - Add an pure ASCII version of strings containing special characters!
 
 ** Usage

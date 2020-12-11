@@ -21,6 +21,8 @@ from bs4 import BeautifulSoup  # used to get rid of HTML stuff
 # https://arxiv.org/abs/2011.06230v1 ({\\cal ...})
 # https://arxiv.org/abs/2011.07139v1 ({\\rm ...})
 
+# TODO check wether $\\alpha$ works??? or $\\textrm{asdf}&AMPgt;1/2$
+
 # Here we can configure
 # environmants for math
 math_envs = ["equation", "align"]
@@ -74,6 +76,7 @@ math_command_whitelist = [
     "alpha", "aleph", "beta", "chi", "delta", "partial", "epsilon", "varepsilon", "exists", "eta", "gamma", "kappa", "lambda", "mu", "nu", "nabla", "omega", "pi", "varpi", "psi", "varphi", "phi", "tau", "theta", "vartheta", "rho", "varrho", "sigma", "upsilon", "varsigma", "vee", "xi", "zeta",
     "ell",
     "ll", "leq", "le", "gg", "geq", "ge", "approx", "equiv", "simeq", "sim",
+    "pm", "mp",
     "cdot", "cdots", "dots",
     "dag", "infty", "hbar",
     "Delta", "Gamma", "Omega", "Lambda", "Phi", "Pi", "Psi", "Sigma", "Theta", "Upsilon", "Xi", "Zeta",
@@ -119,7 +122,7 @@ def elc(s, general_sub=general_sub,
     if (len(re.findall("\\\\\\{", ret)) != len(re.findall("\\\\\\}", ret))):
         return "Amount of curly braces not balanced."
 
-    math_matches = find_all_math(s)
+    math_matches = find_all_math(ret)
     for i, match in enumerate(math_matches):
         ret = ret.replace(match[0], "MATH{}MATH".format(i))
         for find, replace in inside_math_sub:

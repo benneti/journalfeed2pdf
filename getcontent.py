@@ -32,7 +32,7 @@ arxivquery = "cat:cond-mat*+OR+cat:quant-ph"
 # (starting 8 days ago..., such that we do not miss articles due to not all articles published today)
 
 # APS journals
-prs = ["prl", "prb", "prxquantum", "prresearch", "pra"]
+prs = ["prl", "prxquantum", "prresearch", "prb", "pra", "prx"]
 # nature journals
 nature_weekly = ["nature"]
 nature_monthly = ["nmat", "nphys"]

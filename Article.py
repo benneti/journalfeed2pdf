@@ -69,7 +69,9 @@ class Article:
         return ret+"\n"
 
 
-journals = ["prl", "nature", "science"]
+journals = ["prl", "prxquantum", "prresearch",
+            "nature",
+            "science"]
 
 
 def match_journal(article, journals=journals):

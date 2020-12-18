@@ -65,8 +65,10 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    # special treatment of frac for the below
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
-                   # TODO if it is comman with an argument after the } could be anything...
-                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})*)(\s|[^a-zA-Z])", "\\1{\\2\\3}\\5"),
+                   # if it is command with an argument
+                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})+)", "\\1{\\2\\3}"),
+                   # else match the rest
+                   ("([\\^_])(\\\\[a-zA-Z]+)([^a-zA-Z])", "\\1{\\2}\\3"),
                    # no consecutive sub (super) scripts
                    ("(?P<s>[\\^_])([^\\{]|\\{[^\\}]+\\})(?P=s)([^\\{]|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
                    ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}")]

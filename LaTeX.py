@@ -49,7 +49,7 @@ outside_math_sub = [("{\\\\deg}", "$^{\\\\circ}$"),
                     ("#", "\\\\#"),
                     ("\\\\'", "\\\\'")]
 # latex commands that do not make sense without the backslash (no regexp)
-prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "^", "_", "&" ,"$", "%"]
+prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "^", "_", "&", "$", "%"]
 # ensure no unescaped %
 for command in prepend_backslash:
     outside_math_sub.append(((re.compile("\\\\*"+re.escape(command))), "\\\\"+command))
@@ -65,7 +65,8 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    # special treatment of frac for the below
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
-                   ("([\\^_])(\\\\[^\\{\s]+)(\w|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
+                   # TODO if it is comman with an argument after the } could be anything...
+                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})*)(\s|[^a-zA-Z])", "\\1{\\2\\3}\\5"),
                    # no consecutive sub (super) scripts
                    ("(?P<s>[\\^_])([^\\{]|\\{[^\\}]+\\})(?P=s)([^\\{]|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
                    ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}")]
@@ -77,7 +78,7 @@ math_command_whitelist = [
     "ell",
     "ll", "leq", "le", "gg", "geq", "ge", "approx", "equiv", "simeq", "sim",
     "pm", "mp",
-    "cdot", "cdots", "dots",
+    "cdot", "cdots", "dots", "ldots",
     "dag", "infty", "hbar",
     "Delta", "Gamma", "Omega", "Lambda", "Phi", "Pi", "Psi", "Sigma", "Theta", "Upsilon", "Xi", "Zeta",
     "Re", "Im", "Vert",

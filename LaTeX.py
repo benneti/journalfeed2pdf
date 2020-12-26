@@ -55,7 +55,7 @@ for command in prepend_backslash:
     outside_math_sub.append(((re.compile("\\\\*"+re.escape(command))), "\\\\"+command))
 # here we ensure no newlines and tabbing in math
 inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
-                   ("([^\\\\])%", "\\1\\\\%"),  # escape %
+                   ("(^|[^\\\\])%", "\\1\\\\%"),  # escape %
                    ("([^\\\\])#", "\\1\\\\%"),  # escape #
                    ("\\&", ""),  # no amperes and
                    ("\n", " "),  # no newlines
@@ -117,9 +117,11 @@ def elc(s, general_sub=general_sub,
     """Ensure Latex compatibility of a string s"""
     # first use BeautifulSoup to get rid of html artefacts
     ret = BeautifulSoup(s, "html.parser").text.strip()
+    # require is used in math by MATHJAX to load additional packages
+    # Strip it because we use real latex and strip all unknown commands in the following
+    ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)
 
-    ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)   # require is used in math by MATHJAX to load additional packages
-
+    # curly braces need to be balanced, else we have a problem with latex
     if (len(re.findall("\\{", ret)) != len(re.findall("\\}", ret))):
         return "Amount of curly braces not balanced."
     if (len(re.findall("\\\\\\{", ret)) != len(re.findall("\\\\\\}", ret))):

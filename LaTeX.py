@@ -36,7 +36,8 @@ math_regex = re.compile("("+"|".join(math_matchers)+")", flags=re.DOTALL)
 # We allow utf-8 in our file, so we might as well use it
 general_sub_bevore = [('\\\\"o', "ö"),
                       ('\\\\"a', "ä"),
-                      ('\\\\"u', "ü")]
+                      ('\\\\"u', "ü"),
+                      ("", "")]
 # the general sub is applied last after \\ are stripped
 general_sub = [("cite\\{([^}]+)\\}", "[\\1]"),  # citekeys are pointless as we do not have the bib file
                ("\\\\*mathbit", ""),  # we need the backslash, else we can be left with a backslash that destroys everything

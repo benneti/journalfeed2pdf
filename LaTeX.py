@@ -58,7 +58,7 @@ for command in prepend_backslash:
 inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("(^|[^\\\\])%", "\\1\\\\%"),  # escape %
                    ("([^\\\\])#", "\\1\\\\%"),  # escape #
-                   ("\\&", ""),  # no amperes and
+                   ("([^\\\\])\\&", "\\1"),  # no unescaped amperes and
                    ("\n", " "),  # no newlines
                    ("\\\\left", ""),  # no left and rights, just to be on the save side
                    ("\\\\right", ""),

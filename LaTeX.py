@@ -125,8 +125,11 @@ def elc(s, general_sub=general_sub,
     # curly braces need to be balanced, else we have a problem with latex
     if (len(re.findall("\\{", ret)) != len(re.findall("\\}", ret))):
         return "Amount of curly braces not balanced."
+    # in this case we still need to ensure that the first closing bracket is not infront of the first opening bracket
+    if (len(re.findall("\\{", ret)) != len(re.findall(re.compile("\\{[^\\}]*\\}", flags=re.DOTALL), ret))):
+        return "Order of curly braces broken."
     if (len(re.findall("\\\\\\{", ret)) != len(re.findall("\\\\\\}", ret))):
-        return "Amount of curly braces not balanced."
+        return "Amount of (escaped) curly braces not balanced."
 
     math_matches = find_all_math(ret)
     for i, match in enumerate(math_matches):

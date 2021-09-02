@@ -23,6 +23,6 @@ python3 $script_dir/getcontent.py $temp_dir/content.tex
 cp $script_dir/main.tex $temp_dir/main.tex
 # cd and create pdf
 cd $temp_dir
-latexmk -f main.tex
+latexmk -pdflua -f main.tex
 cd $pwd_dir
 mv $temp_dir/main.pdf $fname

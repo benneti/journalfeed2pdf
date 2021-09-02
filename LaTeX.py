@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup  # used to get rid of HTML stuff
 # TODO abstracts with problems:
 # https://arxiv.org/abs/2011.06230v1 ({\\cal ...})
 # https://arxiv.org/abs/2011.07139v1 ({\\rm ...})
+# https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.2.017002 uses phantomrule...
 
 # TODO check wether $\\alpha$ works??? or $\\textrm{asdf}&AMPgt;1/2$
 

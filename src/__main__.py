@@ -29,8 +29,7 @@ import journalfeed.aps as aps
 # we get the arxiv articles for one week
 # (starting 8 days ago..., such that we do not miss articles due to not all articles published today)
 
-
-if __name__ == "__main__":
+def main():
     sources, _filter, preamble = load_config()
     standalone = True
 
@@ -116,3 +115,6 @@ if __name__ == "__main__":
             file.write(article.latex(show_journal=True))
         if standalone:
             file.write("\\end{document}")
+
+if __name__ == "__main__":
+    main()

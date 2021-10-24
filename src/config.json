@@ -1,0 +1,26 @@
+{
+    "class": "extarticle",
+    "class_options": "8pt, twocolumn",
+    "preamble": [
+        "\\usepackage[paperwidth=15.7cm, paperheight=20.9cm, margin=0.5cm, top=1cm, headsep=2mm]{geometry}",
+        "\\usepackage[utf8]{inputenc}",
+        "\\usepackage[english]{babel}",
+        "\\usepackage[colorlinks=false,pdfstartview=Fit]{hyperref}",
+        "\\usepackage{xcolor}",
+        "\\usepackage{amssymb}",
+        "\\usepackage{mathtools}",
+        "\\usepackage{mathrsfs}",
+        "\\usepackage{mhchem}",
+        "\\usepackage{unicode-math}",
+        "\\setcounter{secnumdepth}{0}",
+        "\\usepackage{multicol}",
+        "\\usepackage[medium,compact]{titlesec}",
+        "\\titleformat*{\\subsubsection}{\\itshape}",
+        "\\usepackage{fancyhdr}",
+        "\\pagestyle{fancy}",
+        "\\fancyhead[C]{\\leftmark}",
+        "\\fancyhead[R]{\\thepage}",
+        "\\fancyhead[L]{\\thedate}",
+        "\\fancyfoot[]{}"
+    ]
+}

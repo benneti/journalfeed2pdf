@@ -26,8 +26,8 @@ simply run
 bash journalfeed2pdf.sh
 #+end_src
 
-** TODO [0/3]
-- [ ] Configuration file!
+** TODO [1/3]
+- [X] Configuration file!
 - [ ] Nix Flake file to simplify dependencies
 - [ ] Journals to add:
   - [ ] Nature Communications

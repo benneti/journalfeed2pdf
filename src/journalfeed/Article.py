@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from LaTeX import elc
+from .LaTeX import elc
 import re
 
 class Article:
@@ -69,76 +69,32 @@ class Article:
         return ret+"\n"
 
 
-journals = ["prl", "prxquantum", "prresearch",
-            "nature",
-            "science"]
+    def match_journal(self, journals):
+        "Check wether article was published in one of the journals."
+        return self.journal in journals
+
+    def match_title(self, res):
+        "Check wether article was published in one of the journals (case insensitive)."
+        return not(all(re.search(r, self.title, re.IGNORECASE) is None for r in res))
+
+    def match_summary(self, res):
+        "Check wether article was published in one of the journals. (case insensitive)"
+        return not(all(re.search(r, self.summary, re.IGNORECASE) is None for r in res))
 
 
-def match_journal(article, journals=journals):
-    "Check wether article was published in one of the journals."
-    return article.journal in journals
+    def match_authors(self, authors):
+        "Check wether article was authored by one of the authors. Actually only checks wether the last name and the first letter of the first name are contained in any of the author strings."
+        return any(any(a[0][0] in artauth and a[1] in artauth for a in authors)
+                   for artauth in self.authors)
 
 
-summary_res = ["SiC", "silicon[\\s-]*carbide",
-               "spin[\\s-]*defect", "spin[\\s-]*center", "colou?r[\\s-]*center", "NV",
-               "quantum[\\s-]*memory", "quantum[\\s-]*emitter", "quantum[\\s-]*internet",
-               "Bose-Hubbard", "soliton",
-               "group[\\s-]*theory"]
-
-title_res = [*summary_res, "spin", "quantum", "symmetry"]
-
-
-def match_title(article, res=title_res):
-    "Check wether article was published in one of the journals."
-    # TODO make case insensitive
-    return not(all(re.search(r, article.title) is None for r in res))
-
-
-def match_summary(article, res=summary_res):
-    "Check wether article was published in one of the journals."
-    # TODO make case insensitive
-    return not(all(re.search(r, article.summary) is None for r in res))
-
-
-# danger with unicode!!!! better to have all possible spellings...
-# firstname ... lastName
-authors = ["Guido Burkard",
-           "Gary Wolfowicz",
-           "David D. Awschalom",
-           "Gali Ádám", "Adam Gali",
-           "András Csóré", "Andras Csore",
-           "Lukas Spindlberger",
-           "Jeronimo R. Maze",
-           "Michael Trupke",
-           "Mikhail D. Lukin",
-           "Viktor Ivády", "Viktor Ivady",
-           "Caspar H. van der Waal",
-           "Carmem Gilardoni",
-           "Tom Bosma",
-           "Marcus William Doherty",
-           "Hugo Ribeiro",
-           "Aashish A. Clerk"]
-# We actually only use the first letter and the last name
-_authors = []
-for a in authors:
-    _a = a.split(" ")
-    _a = (a[0], _a[-1])
-    _authors.append(_a)
-
-
-def match_author(article, authors=_authors):
-    "Check wether article was authored by one of the authors. Actually only checks wether the last name and the first letter of the first name are contained in any of the author strings."
-    return any(any(a[0] in artauth and a[1] in artauth for a in authors)
-               for artauth in article.authors)
-
-
-def match(article, matcher=[match_author, match_title, match_summary, match_journal]):
-    """
-    Check wether article is matched by any of the filter rules.
-    Default filters are
-      - match_author
-      - match_title
-      - match_summary
-      - match_journal
-    """
-    return any(m(article) for m in matcher)
+    def match(self, journals, authors, title_res, summary_res):
+        """
+        Check whether article is matched by any of the filter rules.
+        Default filters are
+        - match_authors
+        - match_title
+        - match_summary
+        - match_journal
+        """
+        return self.match_journal(journals) or self.match_authors(authors) or self.match_title(title_res) or self.match_summary(summary_res)

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import re  # used to better ensure compiling latex!
-from bs4 import BeautifulSoup  # used to get rid of HTML stuff
 # journalfeed2pdf -- python script to get content from the web
 # Copyright (C) 2020 Benedikt Tissot
 
@@ -17,12 +15,8 @@ from bs4 import BeautifulSoup  # used to get rid of HTML stuff
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# TODO abstracts with problems:
-# https://arxiv.org/abs/2011.06230v1 ({\\cal ...})
-# https://arxiv.org/abs/2011.07139v1 ({\\rm ...})
-# https://journals.aps.org/prxquantum/abstract/10.1103/PRXQuantum.2.017002 uses phantomrule...
-
-# TODO check wether $\\alpha$ works??? or $\\textrm{asdf}&AMPgt;1/2$
+import re  # used to better ensure compiling latex!
+from bs4 import BeautifulSoup  # used to get rid of HTML stuff
 
 # Here we can configure
 # environmants for math

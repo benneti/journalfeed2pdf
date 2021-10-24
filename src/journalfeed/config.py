@@ -7,7 +7,7 @@ from pathlib import Path
 def load_config_file(name):
     configPath = Path(getenv("XDG_CONFIG_HOME")) / "journalfeed"
     configFile = configPath / name
-    configDefault = Path(__file__).parent / ".." / name
+    configDefault = Path(__file__).parent / name
     with configDefault.open("r") as f:
         config = json.load(f)
     # if local config exists ignore global config
@@ -68,3 +68,4 @@ def load_config():
     for line in config["preamble"]:
         preamble += "\n" + line
     return [ load_sources(), load_filter(), preamble ]
+

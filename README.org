@@ -49,6 +49,10 @@ mv $temp_dir/main.pdf $fname
 * Configuration
 configuration possible via `XDG_CONFIG_HOME/journalfeed/{filter.json,config.json}` see the respective default files in `src/journalfeed` for the layout.
 Either all or non of the options must be configured.
+sources.json is used to configure available journals and filter.json is used to filter the articles in the feed according to the title, summary (icludes title keywords), authors, and journals.
+Add an pure ASCII version of strings containing special characters!
+
+
 
 * Currently Supported websites:
 - arXiv: via the API (Atom feeds)
@@ -68,10 +72,6 @@ write a module that provides a get_articles function that returns a list of Arti
   - ~re~
   - ~bs4~ (~BeautifulSoup~)
 - optional: ~Latex~ (texlive) to create pdf
-
-* Filtering articles
-- To filter articles differently edit ~summary_res~, ~title_res~, and ~authors~ in [[./Article.py]].
-- Add an pure ASCII version of strings containing special characters!
 
 * TODO
 - [ ] Journals to add:

@@ -104,6 +104,22 @@ def find_all_math(s, math_regex=math_regex):
             del i[2]
     return math_matches
 
+def curly_brace_balance(expression):
+    # curly braces need to be balanced, else we have a problem with latex
+    # if (len(re.findall("\\{", ret)) != len(re.findall("\\}", ret))):
+    #     return "Amount of curly braces not balanced."
+    opened = 0
+    for c in expression:
+        if c == '{':
+            opened += 1
+        elif c == '}':
+            if opened > 0:
+                opened -= 1
+            else:
+                return False
+    return opened == 0
+
+
 
 def elc(s, general_sub=general_sub,
         outside_math_sub=outside_math_sub,
@@ -118,13 +134,8 @@ def elc(s, general_sub=general_sub,
     ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)
 
     # curly braces need to be balanced, else we have a problem with latex
-    if (len(re.findall("\\{", ret)) != len(re.findall("\\}", ret))):
-        return "Amount of curly braces not balanced."
-    # in this case we still need to ensure that the first closing bracket is not infront of the first opening bracket
-    if (len(re.findall("\\{", ret)) != len(re.findall(re.compile("\\{[^\\}]*\\}", flags=re.DOTALL), ret))):
-        return "Order of curly braces broken."
-    if (len(re.findall("\\\\\\{", ret)) != len(re.findall("\\\\\\}", ret))):
-        return "Amount of (escaped) curly braces not balanced."
+    if not curly_brace_balance(ret):
+        return "Curly braces not balanced."
 
     math_matches = find_all_math(ret)
     for i, match in enumerate(math_matches):

@@ -18,9 +18,9 @@
                 "Marcus William Doherty",
                 "Hugo Ribeiro",
                 "Aashish A. Clerk"],
-    "title": ["spin", "quantum", "symmetry"],
+    "title": ["spin", "quantum", "symmetry", "colou?r[\\s-]*center", "NV[\\s-]*center"],
     "summary": ["SiC", "silicon[\\s-]*carbide",
-                "spin[\\s-]*defect", "spin[\\s-]*center", "colou?r[\\s-]*center", "NV",
+                "spin[\\s-]*defect", "spin[\\s-]*center",
                 "quantum[\\s-]*memory", "quantum[\\s-]*emitter", "quantum[\\s-]*internet",
                 "Bose-Hubbard", "soliton",
                 "group[\\s-]*theory"]

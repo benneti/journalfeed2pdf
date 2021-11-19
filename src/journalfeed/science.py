@@ -33,7 +33,6 @@ def get_articles(enddate = datetime.date.today(),
         for sec in section_tags:
             sec_title = sec.find('h4')
             if isinstance(sec_title, bs4.element.Tag) and any(s in sec_title.contents[0] for s in ["Research", "Articles", "Reviews"]):
-                print(sec_title)
                 for article in sec.find_all('div', {'class': check_words('card')}):
                     try:
                         url = url_base+article.find('a')['href']

@@ -1,5 +1,5 @@
 {
-    "journals": ["prl", "prxquantum", "prresearch",
+    "journals": ["prx", "prl", "prxquantum", "prresearch",
                  "nature",
                  "science"],
     "authors": ["Guido Burkard",

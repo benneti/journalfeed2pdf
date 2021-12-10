@@ -1,6 +1,6 @@
 {
     "arxiv_query": "cat:cond-mat*+OR+cat:quant-ph",
-    "aps_journals": ["prl", "prxquantum", "prresearch", "prb", "pra", "prx"],
+    "aps_journals": ["prl", "prxquantum", "prx", "prresearch", "prb", "pra"],
     "nature_weekly": ["nature"],
     "nature_monthly": ["nmat", "nphys"],
     "science_weekly": ["science"],

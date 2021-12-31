@@ -48,7 +48,7 @@ def load_sources():
 
     return {
         "arxiv_query": arxiv_query,
-        "aps_journal": aps_journals,
+        "aps_journals": aps_journals,
         "nature": {
             "weekly": nature_weekly,
             "monthly": nature_monthly

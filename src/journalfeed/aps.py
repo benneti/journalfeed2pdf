@@ -14,8 +14,9 @@ def pr_summary_extract(s):
         return s[s.find("<p>")+3:s.find("</p>")]
     return s
 
-def get_articles(enddate = datetime.date.today(), timedelta = datetime.timedelta(days=7), journals = ["prl"], **kwargs):
-    startdate = enddate - timedelta
+def get_articles(enddate = datetime.date.today(),
+                 startdate=datetime.date.today() - datetime.timedelta(days=7),
+                 journals = ["prl"], **kwargs):
 
     feeds = []
     for pr in journals:

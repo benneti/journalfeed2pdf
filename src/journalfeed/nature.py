@@ -7,7 +7,7 @@ from .Article import Article
 
 
 def get_articles(enddate = datetime.date.today(),
-                 startdate=datetime.date.today() - datetime.timedelta(days=8),
+                 startdate=datetime.date.today() - datetime.timedelta(days=7),
                  journals=["nature", "nmat", "nphys"], **kwargs):
     """
     Get's the list of current research articles from nature.com/<journals>/current-issue.

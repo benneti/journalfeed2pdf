@@ -33,21 +33,28 @@ def main():
     sources, _filter, preamble = load_config()
     standalone = True
 
-    enddate = datetime.date.today()
-    timedelta = datetime.timedelta(days=7)
-    startdate = enddate - timedelta
-
-    if len(sys.argv) != 2:
-        print("Usage: python", sys.argv[0], "<output.tex>")
+    if len(sys.argv) < 2 or len(sys.argv) > 4:
+        print("Usage: python", sys.argv[0], "<output.tex> [enddate YYYY-MM-DD] [timedelta D]")
         sys.exit(2)
     else:
         if any(sys.argv[1] == h for h in ["-h", "--help"]):
             print("Usage: python", sys.argv[0], "<output.tex>")
             sys.exit(1)
         fname = sys.argv[1]
+    if len(sys.argv) >= 3:
+        enddate = datetime.date.fromisoformat(sys.argv[2])
+        print("Warning the dates be ignored for some journals!")
+    else:
+        enddate = datetime.date.today()
 
-    prarticles = aps.get_articles()
+    if len(sys.argv) == 4:
+        timedelta = datetime.timedelta(days=int(sys.argv[3]))
+    else:
+        timedelta = datetime.timedelta(days=7)
+    startdate = enddate - timedelta
 
+    prarticles = aps.get_articles(journals=sources["aps_journals"],
+                                  enddate=enddate, startdate=startdate)
     # if we are in the first week of the month
     # else only include the weekly journal(s)
     naturearticles = nature.get_articles(journals=sources["nature"]["weekly"],

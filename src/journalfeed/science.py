@@ -42,7 +42,11 @@ def get_articles(enddate = datetime.date.today(),
 
                     authors = article.find('ul', {'title': check_words('authors')}).find_all('li', {'class': check_words('list-inline-item')})
                     authors = [a.text.strip() for a in authors]
-                    abstract = article.find('div', {'class': check_words('card-body')}).text.strip()
+                    abstract = article.find('div', {'class': check_words('card-body')})
+                    if abstract is None:
+                        abstract = ""
+                    else:
+                        abstract = abstract.text.strip()
                     _abstract = article.find('div', {'class': check_words('card-footer')}).find("div", {'class': check_words('accordion__content')})
                     if _abstract is not None:
                         abstract += _abstract.text.strip()

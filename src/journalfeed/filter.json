@@ -8,7 +8,7 @@
         "David D. Awschalom",
         "Tom Bosma",
         "Guido Burkard",
-        "Aashish A. Clerk"
+        "Aashish A. Clerk",
         "András Csóré", "Andras Csore",
         "Marcus William Doherty",
         "Ádám Gali", "Adam Gali",
@@ -21,7 +21,7 @@
         "Lukas Spindlberger",
         "Michael Trupke",
         "Caspar H. van der Waal",
-        "Gary Wolfowicz",
+        "Gary Wolfowicz"
     ],
     "title": [
         "Bose-Hubbard",
@@ -34,9 +34,9 @@
     ],
     "summary": [
         "colou?r[\\s-]*center",
-        "group[\\s-]*theory"
+        "group[\\s-]*theory",
         "[\\s-]SiC[\\s-]",
         "silicon[\\s-]*carbide",
-        "spin[\\s-]*defect",
+        "spin[\\s-]*defect"
     ]
 }

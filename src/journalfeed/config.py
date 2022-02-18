@@ -12,6 +12,7 @@ def load_config_file(name):
         config = json.load(f)
     # if local config exists ignore global config
     if configFile.exists():
+        print(f"Loading local config \"{name}\".")
         with configFile.open("r") as f:
             config = json.load(f)
     return config

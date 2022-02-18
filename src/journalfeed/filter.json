@@ -5,38 +5,12 @@
         "science"
     ],
     "authors": [
-        "David D. Awschalom",
-        "Tom Bosma",
-        "Guido Burkard",
-        "Aashish A. Clerk",
-        "András Csóré", "Andras Csore",
-        "Marcus William Doherty",
-        "Ádám Gali", "Adam Gali",
-        "Carmem Gilardoni",
-        "Viktor Ivády", "Viktor Ivady",
-        "Mikhail D. Lukin",
-        "Jeronimo R. Maze",
-        "David Plankensteiner",
-        "Hugo Ribeiro",
-        "Lukas Spindlberger",
-        "Michael Trupke",
-        "Caspar H. van der Waal",
-        "Gary Wolfowicz"
+        "Firstname Lastname"
     ],
     "title": [
-        "Bose-Hubbard",
-        "quantum[\\s-]*emitter",
-        "quantum[\\s-]*internet",
-        "quantum[\\s-]*memory",
-        "qubit",
-        "NV[\\s-]*center",
-        "soliton"
+        "important[\\s]keywords"
     ],
     "summary": [
-        "colou?r[\\s-]*center",
-        "group[\\s-]*theory",
-        "[\\s-]SiC[\\s-]",
-        "silicon[\\s-]*carbide",
-        "spin[\\s-]*defect"
+        "very[\\s]important[\\s]keywords"
     ]
 }

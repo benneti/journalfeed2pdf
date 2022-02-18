@@ -40,8 +40,12 @@ def get_articles(enddate = datetime.date.today(),
                     date = article.find('time').text.strip()
                     date = datetime.datetime.strptime(date, "%d %b %Y").date()
 
-                    authors = article.find('ul', {'title': check_words('authors')}).find_all('li', {'class': check_words('list-inline-item')})
-                    authors = [a.text.strip() for a in authors]
+                    authors = article.find('ul', {'title': check_words('authors')})
+                    if authors is None:
+                        authors = [ "No authors found" ]
+                    else:
+                        authors = authors.find_all('li', {'class': check_words('list-inline-item')})
+                        authors = [a.text.strip() for a in authors]
                     abstract = article.find('div', {'class': check_words('card-body')})
                     if abstract is None:
                         abstract = ""

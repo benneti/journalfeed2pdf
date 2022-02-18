@@ -28,16 +28,20 @@ def get_articles(enddate = datetime.date.today(),
             published = parsed_datetime(e.updated_parsed)
             if startdate <= published <= enddate:
                 authors = []
-                for aths in e.authors:
-                    if " and " in aths["name"]:
-                        ath1, ath2 = aths["name"].strip().replace(".\u2009T.", ".").split(" and ", 1)
-                        for a in ath1.split(", "):
-                            a = a.strip()
-                            if a != "":
-                                authors.append(a)
-                        authors.append(ath2.strip())
-                    else:
-                        authors.append(aths["name"].strip())
+                try:
+                    for aths in e.authors:
+                        if " and " in aths["name"]:
+                            ath1, ath2 = aths["name"].strip().replace(".\u2009T.", ".").split(" and ", 1)
+                            for a in ath1.split(", "):
+                                a = a.strip()
+                                if a != "":
+                                    authors.append(a)
+                            authors.append(ath2.strip())
+                        else:
+                            authors.append(aths["name"].strip())
+                except AttributeError:
+                    authors.append("No authors found")
+                    continue
                 prarticles.append(Article(e.title.replace("\n", ""), e.link, published,
                                           authors, pr_summary_extract(e.summary),
                                           e.summary_detail["base"].split("/")[-1].replace(".xml", ""), **kwargs))

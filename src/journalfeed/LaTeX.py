@@ -27,9 +27,9 @@ math_matchers = ["(\\$)([^\\$]+)(\\$)", "(\\$\\$)([^\\$]+)(\\$\\$)",
 math_regex = re.compile("("+"|".join(math_matchers)+")", flags=re.DOTALL)
 
 # supports regexp (needs to be escaped accordingly)
-# the general sub bevore is applied bevore \\ are stripped
+# the general sub before is applied before \\ are stripped
 # We allow utf-8 in our file, so we might as well use it
-general_sub_bevore = [('\\\\"o', "ö"),
+general_sub_before = [('\\\\"o', "ö"),
                       ('\\\\"a', "ä"),
                       ('\\\\"u', "ü"),
                       ("", "")]
@@ -62,7 +62,7 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    # if it is command with an argument
-                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})+)", "\\1{\\2\\3}"),
+                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})+|\s\S+)", "\\1{\\2\\3}"),
                    # else match the rest
                    ("([\\^_])(\\\\[a-zA-Z]+)([^a-zA-Z])", "\\1{\\2}\\3"),
                    # no consecutive sub (super) scripts
@@ -89,8 +89,6 @@ math_command_whitelist = [
     "quad", "qquad", "hat", "widehat", "langle", "rangle",
     # "bra", "ket", "norm", "abs", "braket", "comm", "acomm", "proj", "ev", "eval",  # these are actually not avaible
     "mathrm", "text", "mathbf", "mathbb", "mathcal", "overline"]
-
-math_command_whitlist_regex = "("+"|".join(math_command_whitelist)+")"
 
 math_env_whitelist = [ "cases", "matrix", "pmatrix", "array" ]
 
@@ -124,7 +122,7 @@ def curly_brace_balance(expression):
 def elc(s, general_sub=general_sub,
         outside_math_sub=outside_math_sub,
         inside_math_sub=inside_math_sub,
-        math_command_whitelist=math_command_whitelist,
+        math_command_whitlist_regex = "("+"|".join(math_command_whitelist)+")",
         math_env_whitelist=math_env_whitelist):
     """Ensure Latex compatibility of a string s"""
     # first use BeautifulSoup to get rid of html artefacts
@@ -143,7 +141,7 @@ def elc(s, general_sub=general_sub,
         for find, replace in inside_math_sub:
             match[2] = re.sub(find, replace, match[2])
         # try to clever strip "bad" backslashes:
-        # first insert a tab if the command is directly followed by a \\ or a number
+        # first insert a space if the command is directly followed by a \\ or a number
         match[2] = re.sub(math_command_whitlist_regex+"(\\\\|[0-9]|/)", "\\1 \\2", match[2])
         # after a command a (backslash or number or slash)
         # whitespace, super-, subscript, slash, a bracket or the end of the string are allowed
@@ -155,7 +153,7 @@ def elc(s, general_sub=general_sub,
     for i, finrep in enumerate(outside_math_sub):
         ret = re.sub(finrep[0], "OUTSIDE{}OUTSIDE".format(i), ret)
 
-    for find, replace in general_sub_bevore:
+    for find, replace in general_sub_before:
         ret = re.sub(find, replace, ret)
 
     ret = ret.replace("\\", "")

@@ -131,6 +131,9 @@ def elc(s, general_sub=general_sub,
     # Strip it because we use real latex and strip all unknown commands in the following
     ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)
 
+    # strip escaped $ signs to not accidentaly use them in math matches
+    ret = re.sub("\\\\\\$", "ESCAPEDDOLLAR", ret)
+
     # curly braces need to be balanced, else we have a problem with latex
     if not curly_brace_balance(ret):
         return "Curly braces not balanced."
@@ -166,5 +169,7 @@ def elc(s, general_sub=general_sub,
 
     for find, replace in general_sub:
         ret = re.sub(find, replace, ret)
+
+    ret = re.sub("ESCAPEDDOLLAR", "\\$", ret)
 
     return ret.strip()

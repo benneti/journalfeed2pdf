@@ -140,7 +140,7 @@ def elc(s, general_sub=general_sub,
 
     math_matches = find_all_math(ret)
     for i, match in enumerate(math_matches):
-        if not curly_brace_balance(match):
+        if not curly_brace_balance(match[0]):
             return "Curly braces not balanced in inline math."
         ret = ret.replace(match[0], "MATH{}MATH".format(i))
         for find, replace in inside_math_sub:

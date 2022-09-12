@@ -4,6 +4,7 @@ import requests
 import bs4
 from bs4 import BeautifulSoup
 from .Article import Article
+import dateutil.parser
 
 
 def get_articles(enddate = datetime.date.today(),
@@ -37,8 +38,8 @@ def get_articles(enddate = datetime.date.today(),
                     except TypeError:
                         continue
                     title = article.find('h3', {'class': check_words('article-title')}).text.strip()
-                    date = article.find('time').text.strip()
-                    date = datetime.datetime.strptime(date, "%d %b %Y").date()
+                    date = dateutil.parser.parse( article.find('time').text.strip() ).date()
+
 
                     authors = article.find('ul', {'title': check_words('authors')})
                     if authors is None:

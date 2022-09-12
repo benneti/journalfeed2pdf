@@ -4,6 +4,7 @@ import requests
 import bs4
 from bs4 import BeautifulSoup
 from .Article import Article
+import dateutil.parser
 
 
 def get_articles(enddate = datetime.date.today(),
@@ -43,11 +44,7 @@ def get_articles(enddate = datetime.date.today(),
                                 except TypeError:
                                     continue
                                 title = article.find('h3', {'itemprop': check_words('name headline')}).text.strip()
-                                date = article.find('time', {'itemprop': check_words('datePublished')}).text.strip()
-                                try:
-                                    date = datetime.datetime.strptime(date, "%d %b %Y").date() # abbreviated month name
-                                except ValueError:
-                                    date = datetime.datetime.strptime(date, "%d %B %Y").date() # full month name
+                                date = dateutil.parser.parse( article.find('time', {'itemprop': check_words('datePublished')}).text.strip() ).date()
                                 authors = article.find_all('li', {'itemprop': check_words('creator')})
                                 authors = [a.text.replace(",", "").replace("&\xa0", "").strip() for a in authors]
                                 try:

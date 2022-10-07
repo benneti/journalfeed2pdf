@@ -36,6 +36,7 @@ general_sub_before = [('\\\\"o', "ö"),
 # the general sub is applied last after \\ are stripped
 general_sub = [("cite\\{([^}]+)\\}", "[\\1]"),  # citekeys are pointless as we do not have the bib file
                ("\\\\*mathbit", ""),  # we need the backslash, else we can be left with a backslash that destroys everything
+               ("{([_\\^])}", "{\\\\\\1}"), # _ and ^ eat the closing braket, it is certain that the escaped use was intended
                ("o", "o")]
 # Add things that should have a backslash here, as we strip all backslashes outside math
 # right now this does not support keeping the matches of groups
@@ -45,6 +46,7 @@ outside_math_sub = [("{\\\\deg}", "$^{\\\\circ}$"),
                     ("#", "\\\\#"),
                     ("\\\\'", "\\\\'")]
 # latex commands that do not make sense without the backslash (no regexp)
+# outside of math environments
 prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "^", "_", "&", "$", "%"]
 # ensure no unescaped %
 for command in prepend_backslash:

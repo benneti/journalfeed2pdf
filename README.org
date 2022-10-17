@@ -48,8 +48,8 @@ mv $temp_dir/main.pdf $fname
 
 * Configuration
 configuration possible via `XDG_CONFIG_HOME/journalfeed/{filter.json,config.json}` see the respective default files in `src/journalfeed` for the layout.
-Either all or non of the options must be configured.
-sources.json is used to configure available journals and filter.json is used to filter the articles in the feed according to the title, summary (icludes title keywords), authors, and journals.
+Either all or none of the options must be configured.
+sources.json is used to configure available journals and filter.json is used to filter the articles in the feed according to the title, summary (includes title keywords), authors, and journals.
 Add an pure ASCII version of strings containing special characters!
 
 

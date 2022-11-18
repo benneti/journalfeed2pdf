@@ -38,6 +38,9 @@ def get_articles(enddate = datetime.date.today(),
                     except TypeError:
                         continue
                     title = article.find('h3', {'class': check_words('article-title')}).text.strip()
+                    # these meta articles are not of interest
+                    if title in [ "In Science Journals", "In Other Journals" ]:
+                        continue
                     date = dateutil.parser.parse( article.find('time').text.strip() ).date()
 
 

@@ -7,7 +7,7 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in {
       devShell = pkgs.mkShell {
-        nativeBuildInputs = [ (pkgs.python38.withPackages(ps: with ps; [ jupyter jupyterlab feedparser beautifulsoup4 requests python-dateutil ])) ];
+        nativeBuildInputs = [ (pkgs.python38.withPackages(ps: with ps; [ jupyter jupyterlab feedparser beautifulsoup4 requests python-dateutil pytest ])) ];
       };
     });
 }

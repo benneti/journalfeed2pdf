@@ -105,9 +105,10 @@ def find_all_math(s, math_regex=math_regex):
     return math_matches
 
 def curly_brace_balance(expression):
-    # curly braces need to be balanced, else we have a problem with latex
-    # if (len(re.findall("\\{", ret)) != len(re.findall("\\}", ret))):
-    #     return "Amount of curly braces not balanced."
+    # the amount of escaped brackets should match
+    if len(re.findall("\\\\\\{", expression)) != len(re.findall("\\\\\\}", expression)):
+        return False
+    # additionally check whether for every opened curly braked there is a closing curly bracket
     opened = 0
     for c in expression:
         if c == '{':

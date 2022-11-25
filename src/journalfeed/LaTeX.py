@@ -90,7 +90,7 @@ math_command_whitelist = [
     "sum", "cup", "times", "prod", "otimes", "propto", "circ", "setminus", "forall", "emptyset", "wedge", "subset", "supset",
     "quad", "qquad", "hat", "widehat", "langle", "rangle",
     # "bra", "ket", "norm", "abs", "braket", "comm", "acomm", "proj", "ev", "eval",  # these are actually not avaible
-    "mathrm", "text", "mathbf", "mathbb", "mathcal", "overline"]
+    "mathrm", "text", "ensuremath", "mathbf", "mathbb", "mathcal", "overline"]
 
 math_env_whitelist = [ "cases", "matrix", "pmatrix", "array" ]
 

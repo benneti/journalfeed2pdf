@@ -45,3 +45,5 @@ class TestMathEnvironment():
     def test_html_escaping(self):
         s = """$\\text{spin}&gt;1/2$ quan..."""
         assert "$\\text{spin}>1/2$" in elc(s)
+    def test_weird_math_nesting(self):
+        assert "$\\text{\\ensuremath{\\sqrt{q}}}$" in arxiv_summary("2211.11266v1")

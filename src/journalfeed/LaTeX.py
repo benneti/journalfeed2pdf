@@ -16,7 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re  # used to better ensure compiling latex!
-from bs4 import BeautifulSoup  # used to get rid of HTML stuff
+# from bs4 import BeautifulSoup  # used to get rid of HTML stuff
+import html
 
 # Here we can configure
 # environmants for math
@@ -129,7 +130,9 @@ def elc(s, general_sub=general_sub,
         math_env_whitelist=math_env_whitelist):
     """Ensure Latex compatibility of a string s"""
     # first use BeautifulSoup to get rid of html artefacts
-    ret = BeautifulSoup(s, "html.parser").text.strip()
+    # using html because beautifulsoup also strips <expecation values> in this form
+    ret = html.unescape(s)
+    # ret = BeautifulSoup(s, "html.parser").text.strip()
     # require is used in math by MATHJAX to load additional packages
     # Strip it because we use real latex and strip all unknown commands in the following
     ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)

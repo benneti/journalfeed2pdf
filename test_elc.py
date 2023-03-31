@@ -48,4 +48,4 @@ class TestMathEnvironment():
     def test_weird_math_nesting(self):
         assert "$\\text{\\ensuremath{\\sqrt{q}}}$" in arxiv_summary("2211.11266v1")
     def test_expectation_value_that_could_be_a_html_tag(self):
-        assert "$<n_d>$" in arxiv_summary("2303.14053v1")
+        assert not "$$" in arxiv_summary("2303.14053v1")

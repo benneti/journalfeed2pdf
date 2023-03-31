@@ -16,8 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re  # used to better ensure compiling latex!
-# from bs4 import BeautifulSoup  # used to get rid of HTML stuff
-import html
+from bs4 import BeautifulSoup  # used to get rid of HTML stuff
 
 # Here we can configure
 # environmants for math
@@ -65,7 +64,7 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    # if it is command with an argument
-                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})+|\s\S+)", "\\1{\\2\\3}"),
+                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})+|\\s\\S+)", "\\1{\\2\\3}"),
                    # else match the rest
                    ("([\\^_])(\\\\[a-zA-Z]+)([^a-zA-Z])", "\\1{\\2}\\3"),
                    # no consecutive sub (super) scripts
@@ -131,8 +130,7 @@ def elc(s, general_sub=general_sub,
     """Ensure Latex compatibility of a string s"""
     # first use BeautifulSoup to get rid of html artefacts
     # using html because beautifulsoup also strips <expecation values> in this form
-    ret = html.unescape(s)
-    # ret = BeautifulSoup(s, "html.parser").text.strip()
+    ret = BeautifulSoup(s, "html.parser").get_text(strip=True)
     # require is used in math by MATHJAX to load additional packages
     # Strip it because we use real latex and strip all unknown commands in the following
     ret = re.sub("\\$\\\\require\\{[^\\]\\}]+\\}\\$", "", ret)
@@ -173,7 +171,10 @@ def elc(s, general_sub=general_sub,
         ret = re.sub("OUTSIDE{}OUTSIDE".format(i), finrep[1], ret)
 
     for i, match in enumerate(math_matches):
-        ret = ret.replace("MATH{}MATH".format(i), "$"+match[2]+"$")
+        if match[2] != "":
+            ret = ret.replace("MATH{}MATH".format(i), "$"+match[2]+"$")
+        else:
+            ret = ret.replace("MATH{}MATH".format(i), "?empty math?")
 
     for find, replace in general_sub:
         ret = re.sub(find, replace, ret)

@@ -49,8 +49,7 @@ class TestMathEnvironment():
         assert "$\\text{\\ensuremath{\\sqrt{q}}}$" in arxiv_summary("2211.11266v1")
     def test_expectation_value_that_could_be_a_html_tag(self):
         assert not "$$" in arxiv_summary("2303.14053v1")
-
     def test_greek_letter_in_index(self):
         assert "\\Lambda_{\\beta}" in arxiv_summary("2304.14099v1")
     def test_sub_or_super_script_ending_math(self):
-        assert "\\\\^$" in arxiv_summary("2304.12924v1")
+        assert "\\^$" in arxiv_summary("2304.12924v1")

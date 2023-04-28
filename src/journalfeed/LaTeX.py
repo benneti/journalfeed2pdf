@@ -51,6 +51,41 @@ prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "^", "_", "&", "$", "%
 # ensure no unescaped %
 for command in prepend_backslash:
     outside_math_sub.append(((re.compile("\\\\*"+re.escape(command))), "\\\\"+command))
+
+
+
+# we strip backslashes from commands not in the whitelist to ensure we do not get problems with custom commands
+# Mind that we only strip backslashes infront of a-z, A-Z, and 0-9
+math_command_whitelist_no_args = [
+    "alpha", "aleph", "beta", "chi", "delta", "partial", "epsilon", "varepsilon", "exists", "eta", "gamma", "kappa", "lambda", "mu", "nu", "nabla", "omega", "pi", "varpi", "psi", "varphi", "phi", "tau", "theta", "vartheta", "rho", "varrho", "sigma", "upsilon", "varsigma", "vee", "xi", "zeta",
+    "ell",
+    "ll", "leq", "le", "gg", "geq", "ge", "approx", "equiv", "simeq", "sim",
+    "pm", "mp",
+    "cdot", "cdots", "dots", "ldots",
+    "dag", "infty", "hbar",
+    "Delta", "Gamma", "Omega", "Lambda", "Phi", "Pi", "Psi", "Sigma", "Theta", "Upsilon", "Xi", "Zeta",
+    "Re", "Im", "Vert",
+    "Leftrightarrow", "Leftarrow", "Rightarrow", "Longleftrightarrow", "Longleftarrow", "Longrightarrow", "wedge",
+    "to", "leftrightarrow", "leftarrow", "rightarrow", "longleftrightarrow", "longleftarrow", "longrightarrow", "uparrow", "downarrow",
+    "parallel", "perp", "mapsto", "longmapsto", "not", "prime",
+    "langle", "rangle",
+    "in",
+    "cup", "times", "prod", "otimes", "propto", "circ", "setminus", "forall", "emptyset", "wedge", "subset", "supset",
+    "quad", "qquad", "hat", "widehat"
+]
+
+# most likely with an arg
+math_command_whitelist_with_args = [
+    "binom", "sqrt", "overset", "int", "frac",
+    "exp", "ln", "log", "cos", "sin", "tan",
+    "sum",
+    "mathrm", "text", "ensuremath", "mathbf", "mathbb", "mathcal", "overline"
+]
+    # "bra", "ket", "norm", "abs", "braket", "comm", "acomm", "proj", "ev", "eval",  # these are actually not avaible
+math_command_whitelist = math_command_whitelist_with_args + math_command_whitelist_no_args
+
+math_env_whitelist = [ "cases", "matrix", "pmatrix", "array" ]
+
 # here we ensure no newlines and tabbing in math
 inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("(^|[^\\\\])%", "\\1\\\\%"),  # escape %
@@ -64,35 +99,14 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    # if it is command with an argument
-                   ("([\\^_])(\\\\[a-zA-Z]+)((\\{[^\\}]+\\})+|\\s\\S+)", "\\1{\\2\\3}"),
+                   ("([\\^_])(\\\\[a-zA-Z]+(\\{[^\\}]+\\})+|\\\\"+"("+"|".join(math_command_whitelist_with_args)+")"+"\\s\\S+)", "\\1{\\2}"),
                    # else match the rest
                    ("([\\^_])(\\\\[a-zA-Z]+)([^a-zA-Z])", "\\1{\\2}\\3"),
                    # no consecutive sub (super) scripts
                    ("(?P<s>[\\^_])([^\\{]|\\{[^\\}]+\\})(?P=s)([^\\{]|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
-                   ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}")]
-
-# we strip backslashes from commands not in the whitelist to ensure we do not get problems with custom commands
-# Mind that we only strip backslashes infront of a-z, A-Z, and 0-9
-math_command_whitelist = [
-    "alpha", "aleph", "beta", "chi", "delta", "partial", "epsilon", "varepsilon", "exists", "eta", "gamma", "kappa", "lambda", "mu", "nu", "nabla", "omega", "pi", "varpi", "psi", "varphi", "phi", "tau", "theta", "vartheta", "rho", "varrho", "sigma", "upsilon", "varsigma", "vee", "xi", "zeta",
-    "ell",
-    "ll", "leq", "le", "gg", "geq", "ge", "approx", "equiv", "simeq", "sim",
-    "pm", "mp",
-    "cdot", "cdots", "dots", "ldots",
-    "dag", "infty", "hbar",
-    "Delta", "Gamma", "Omega", "Lambda", "Phi", "Pi", "Psi", "Sigma", "Theta", "Upsilon", "Xi", "Zeta",
-    "Re", "Im", "Vert",
-    "Leftrightarrow", "Leftarrow", "Rightarrow", "Longleftrightarrow", "Longleftarrow", "Longrightarrow", "wedge",
-    "to", "leftrightarrow", "leftarrow", "rightarrow", "longleftrightarrow", "longleftarrow", "longrightarrow", "uparrow", "downarrow",
-    "parallel", "perp", "mapsto", "longmapsto", "not", "prime",
-    "binom", "sqrt", "overset", "int", "frac", "in",
-    "exp", "ln", "log", "cos", "sin", "tan",
-    "sum", "cup", "times", "prod", "otimes", "propto", "circ", "setminus", "forall", "emptyset", "wedge", "subset", "supset",
-    "quad", "qquad", "hat", "widehat", "langle", "rangle",
-    # "bra", "ket", "norm", "abs", "braket", "comm", "acomm", "proj", "ev", "eval",  # these are actually not avaible
-    "mathrm", "text", "ensuremath", "mathbf", "mathbb", "mathcal", "overline"]
-
-math_env_whitelist = [ "cases", "matrix", "pmatrix", "array" ]
+                   ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}"),
+                   # these cannot end the math environment
+                   ("([\\^_])$", "\\\\\\1")]
 
 
 def find_all_math(s, math_regex=math_regex):

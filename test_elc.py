@@ -53,3 +53,5 @@ class TestMathEnvironment():
         assert "\\Lambda_{\\beta}" in arxiv_summary("2304.14099v1")
     def test_sub_or_super_script_ending_math(self):
         assert "\\^$" in arxiv_summary("2304.12924v1")
+    def test_already_escaped_sub_or_super_script_ending_math(self):
+        assert "$\\_$" in arxiv_summary("2306.06943v1")

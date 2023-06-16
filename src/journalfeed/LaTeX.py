@@ -105,8 +105,11 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    # no consecutive sub (super) scripts
                    ("(?P<s>[\\^_])([^\\{]|\\{[^\\}]+\\})(?P=s)([^\\{]|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
                    ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}"),
-                   # these cannot end the math environment
-                   ("([\\^_])$", "\\\\\\1")]
+                   # unescaped these cannot end the math environment
+                   # this means we need an even amount of escapes infront of the ^_
+                   ("([^\\\\]|^)([\\^_])$", "\\1\\\\\\2"),
+                   # backslashes that escape the backslashes
+                   ("([^\\\\]|^)((\\\\\\\\)+)([\\^_])$", "\\1\\2 \\\\\\4")]
 
 
 def find_all_math(s, math_regex=math_regex):

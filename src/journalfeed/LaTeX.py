@@ -88,6 +88,7 @@ math_env_whitelist = [ "cases", "matrix", "pmatrix", "array" ]
 
 # here we ensure no newlines and tabbing in math
 inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
+                   ("\\\\stackrel{\\^}", "\\\\hat"), # use hat instead of superscript here
                    ("(^|[^\\\\])%", "\\1\\\\%"),  # escape %
                    ("([^\\\\])#", "\\1\\\\%"),  # escape #
                    ("([^\\\\])\\&", "\\1"),  # no unescaped amperes and

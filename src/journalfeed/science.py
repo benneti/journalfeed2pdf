@@ -2,7 +2,7 @@
 import datetime
 import feedparser as fp
 from .Article import Article
-from .helpers import parsed_datetime
+from .helpers import parsed_datetime, abstract_from_doi
 
 
 def get_articles(enddate = datetime.date.today(),
@@ -36,6 +36,9 @@ def get_articles(enddate = datetime.date.today(),
                     continue
                 url = e.link
                 journal = e.prism_publicationname.strip()
-                summary = "Summaries or abstracts are not supported for now in Science journals."
+                try:
+                    summary = abstract_from_doi(e.prism_doi)
+                except:
+                    summary = "No summary or abstract found"
                 articles.append(Article(e.title.replace("\n", "").strip(), url, published, authors, summary, journal, **kwargs))
     return articles

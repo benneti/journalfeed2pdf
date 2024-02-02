@@ -2,7 +2,6 @@
 import datetime
 import requests
 import bs4
-from bs4 import BeautifulSoup
 from .Article import Article
 from .helpers import check_words
 import dateutil.parser
@@ -22,7 +21,7 @@ def get_articles(enddate = datetime.date.today(),
         url = url_base+"/"+journal+"/current-issue"
         response = requests.get(url)
 
-        soup = BeautifulSoup(response.content, "html.parser")
+        soup = bs4.BeautifulSoup(response.content, "html.parser")
 
         section_tags = soup.find_all('section', {'data-container-type': check_words('issue-section-list')})
         if section_tags is None:

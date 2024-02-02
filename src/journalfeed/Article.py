@@ -73,7 +73,7 @@ class Article:
 
     def match_journal(self, journals):
         "Check wether article was published in one of the journals."
-        return self.journal in journals
+        return self.journal.lower() in journals
 
     def match_title(self, res):
         "Check wether article was published in one of the journals (case insensitive)."

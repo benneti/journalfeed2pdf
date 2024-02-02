@@ -22,7 +22,9 @@ def load_filter():
     config = load_config_file("filter.json")
 
     # parse the config
-    journals = config["journals"]
+    journals = []
+    for j in config["journals"]:
+        journals.append(j.lower())
     # We actually only use the first and the last names
     # danger with unicode!!!! better to have all possible spellings...
     authors = []

@@ -3,11 +3,8 @@ import datetime
 import feedparser as fp
 import time  # used for connections to arxiv
 from .Article import Article
+from .helpers import parsed_datetime
 
-
-def parsed_datetime(parsed_date):
-    """Parse a feedparser date again to create a datetime object"""
-    return datetime.date(parsed_date.tm_year, parsed_date.tm_mon, parsed_date.tm_mday)
 
 def get_articles(enddate=datetime.date.today(),
                  startdate=datetime.date.today() - datetime.timedelta(days=8),

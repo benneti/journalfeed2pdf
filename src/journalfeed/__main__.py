@@ -59,7 +59,7 @@ def main():
     # else only include the weekly journal(s)
     naturearticles = nature.get_articles(journals=sources["nature"]["weekly"],
                                          enddate=enddate, startdate=startdate)
-    sciencearticles = science.get_articles(journals=sources["science"]["weekly"],
+    sciencearticles = science.get_articles(journals=sources["science"],
                                            enddate=enddate, startdate=startdate)
     if enddate.day <= 7:
         # include the monthly journal(s) of nature and science families
@@ -67,8 +67,6 @@ def main():
         _start = datetime.date(startdate.year, startdate.month, 1)
         naturearticles += nature.get_articles(journals=sources["nature"]["monthly"],
                                               enddate=enddate, startdate=_start)
-        sciencearticles += science.get_articles(journals=sources["science"]["monthly"],
-                                                enddate=enddate, startdate=_start)
 
     arxivarticles = arxiv.get_articles(query=sources["arxiv_query"])
 

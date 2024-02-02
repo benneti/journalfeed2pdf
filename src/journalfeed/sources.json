@@ -3,6 +3,5 @@
     "aps_journals": ["prl", "prxquantum", "prx", "prresearch", "prapplied", "prb", "pra"],
     "nature_weekly": ["nature"],
     "nature_monthly": ["nmat", "nphys"],
-    "science_weekly": ["science"],
-    "science_monthly": ["advances"]
+    "science": ["science", "sciadv"]
 }

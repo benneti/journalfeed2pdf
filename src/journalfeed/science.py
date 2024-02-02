@@ -1,63 +1,41 @@
 #!/usr/bin/env python3
 import datetime
-import requests
-import bs4
-from bs4 import BeautifulSoup
+import feedparser as fp
 from .Article import Article
-import dateutil.parser
+from .helpers import parsed_datetime
 
 
 def get_articles(enddate = datetime.date.today(),
                  startdate=datetime.date.today() - datetime.timedelta(days=7),
-                 journals=["science", "advances"], **kwargs):
+                 journals=["science", "sciadv"], **kwargs):
     """
     Get's the list of current research articles from <journal>.sciencemag.com.
 
     Unsupported kwargs are passed on to the article contructor.
     """
+    feeds = []
+    for j in journals:
+        feeds.append(fp.parse("https://www.science.org/action/showFeed?type=etoc&feed=rss&jc="+j))
+
     articles = []
-    for journal in journals:
-        url_base = "https://"+journal+".sciencemag.org"
-        url = url_base+"/toc/science/current"
-        response = requests.get(url)
-        def check_words(words):
-            return lambda x: x and frozenset(words.split()).intersection(x.split())
 
-        soup = BeautifulSoup(response.content, "html.parser")
-
-        section_tags = soup.find_all(
-            'section', {'class': check_words('toc__section')}
-        )
-
-        for sec in section_tags:
-            sec_title = sec.find('h4')
-            if isinstance(sec_title, bs4.element.Tag) and any(s in sec_title.contents[0] for s in ["Research", "Articles", "Reviews"]):
-                for article in sec.find_all('div', {'class': check_words('card')}):
-                    try:
-                        url = url_base+article.find('a')['href']
-                    except TypeError:
-                        continue
-                    title = article.find('h3', {'class': check_words('article-title')}).text.strip()
-                    # these meta articles are not of interest
-                    if title in [ "In Science Journals", "In Other Journals" ]:
-                        continue
-                    date = dateutil.parser.parse( article.find('time').text.strip() ).date()
-
-
-                    authors = article.find('ul', {'title': check_words('authors')})
-                    if authors is None:
-                        authors = [ "No authors found" ]
-                    else:
-                        authors = authors.find_all('li', {'class': check_words('list-inline-item')})
-                        authors = [a.text.strip() for a in authors]
-                    abstract = article.find('div', {'class': check_words('card-body')})
-                    if abstract is None:
-                        abstract = ""
-                    else:
-                        abstract = abstract.text.strip()
-                    _abstract = article.find('div', {'class': check_words('card-footer')}).find("div", {'class': check_words('accordion__content')})
-                    if _abstract is not None:
-                        abstract += _abstract.text.strip()
-                        abstract += "\n"
-                    articles.append(Article(title.replace("\n", ""), url, date, authors, abstract, journal, **kwargs))
+    for feed in feeds:
+        for e in feed.entries:
+            published = parsed_datetime(e.updated_parsed)
+            if startdate <= published <= enddate and ( "research article" in e.dc_type.lower() or "review" in e.dc_type.lower() ):
+                authors = []
+                try:
+                    for aths in e.authors:
+                        aths = aths["name"].strip().replace(".\u2009T.", ".").replace(" and ", ", ")
+                        for author in aths.split(", "):
+                            author = author.strip()
+                            if author != "":
+                                authors.append(author)
+                except AttributeError:
+                    authors.append("No authors found")
+                    continue
+                url = e.link
+                journal = e.prism_publicationname.strip()
+                summary = "Summaries or abstracts are not supported for now in Science journals."
+                articles.append(Article(e.title.replace("\n", "").strip(), url, published, authors, summary, journal, **kwargs))
     return articles

@@ -3,11 +3,8 @@
 import datetime
 import feedparser as fp
 from .Article import Article
+from .helpers import parsed_datetime
 
-
-def parsed_datetime(parsed_date):
-    """Parse a feedparser date again to create a datetime object"""
-    return datetime.date(parsed_date.tm_year, parsed_date.tm_mon, parsed_date.tm_mday)
 
 def pr_summary_extract(s):
     if "<p>" in s:

@@ -4,6 +4,7 @@ import requests
 import bs4
 from bs4 import BeautifulSoup
 from .Article import Article
+from .helpers import check_words
 import dateutil.parser
 
 
@@ -20,8 +21,6 @@ def get_articles(enddate = datetime.date.today(),
     for journal in journals:
         url = url_base+"/"+journal+"/current-issue"
         response = requests.get(url)
-        def check_words(words):
-            return lambda x: x and frozenset(words.split()).intersection(x.split())
 
         soup = BeautifulSoup(response.content, "html.parser")
 

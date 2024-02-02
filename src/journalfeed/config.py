@@ -44,8 +44,7 @@ def load_sources():
     aps_journals = config["aps_journals"]
     nature_weekly = config["nature_weekly"]
     nature_monthly = config["nature_monthly"]
-    science_weekly = config["science_weekly"]
-    science_monthly = config["science_monthly"]
+    science = config["science"]
 
     return {
         "arxiv_query": arxiv_query,
@@ -54,10 +53,7 @@ def load_sources():
             "weekly": nature_weekly,
             "monthly": nature_monthly
         },
-        "science": {
-            "weekly": science_weekly,
-            "monthly": science_monthly
-        }
+        "science": science
     }
 
 

@@ -97,7 +97,8 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("\\\\right", ""),
                    ("\\\\textit", ""),  # textit is useless in math mode
                    # special treatment of frac for the below
-                   ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"),
+                   ("([\\^_])(\\\\frac\s*(\\\\[0-9a-zA-Z]+|[0-9a-zA-Z]){2})", "\\1{\\2}"), # frac without curly braces
+                   ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"), # frac with curly braces
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    # if it is command with an argument
                    ("([\\^_])(\\\\[a-zA-Z]+(\\{[^\\}]+\\})+|\\\\"+"("+"|".join(math_command_whitelist_with_args)+")"+"\\s\\S+)", "\\1{\\2}"),

@@ -58,3 +58,6 @@ class TestMathEnvironment():
     def test_stackrel_superscript_to_hat(self):
         s = """intensive quantity ($\\stackrel{^}{p}$) that..."""
         assert "$\\hat{p}$" in elc(s)
+    def exponend_braceless_frac(self):
+        summary = arxiv_summary("2409.02121v1")
+        assert "^{\\frac 12}" in summary

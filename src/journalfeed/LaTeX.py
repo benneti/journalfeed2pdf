@@ -42,12 +42,13 @@ general_sub = [("cite\\{([^}]+)\\}", "[\\1]"),  # citekeys are pointless as we d
 # right now this does not support keeping the matches of groups
 # matches before backslashes are stripped (and replaces it with temporary string)
 # after stripping the second string is inserted
-outside_math_sub = [("{\\\\deg}", "$^{\\\\circ}$"),
+outside_math_sub = [("\\^", "{\\\\textasciicircum}"),
+                    ("{\\\\deg}", "$^{\\\\circ}$"),
                     ("#", "\\\\#"),
                     ("\\\\'", "\\\\'")]
 # latex commands that do not make sense without the backslash (no regexp)
 # outside of math environments
-prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "^", "_", "&", "$", "%"]
+prepend_backslash = ["emph\\{", "textit\\{", "textbf\\{", "_", "&", "$", "%"]
 # ensure no unescaped %
 for command in prepend_backslash:
     outside_math_sub.append(((re.compile("\\\\*"+re.escape(command))), "\\\\"+command))

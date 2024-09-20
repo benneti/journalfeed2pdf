@@ -61,3 +61,7 @@ class TestMathEnvironment():
     def exponend_braceless_frac(self):
         summary = arxiv_summary("2409.02121v1")
         assert "^{\\frac 12}" in summary
+
+class TestOutsideMathEnvironment():
+    def hat_outside_math(self):
+        assert "\\textasciicircum" in elc('chirality $\\stackrel{^}{\\mathbf{n}}⋅(\\…')

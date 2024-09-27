@@ -102,9 +102,9 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"), # frac with curly braces
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    # if it is command with an argument
-                   ("([\\^_])(\\\\[a-zA-Z]+(\\{[^\\}]+\\})+|\\\\"+"("+"|".join(math_command_whitelist_with_args)+")"+"\\s\\S+)", "\\1{\\2}"),
+                   ("([\\^_])(?:\\\\n)*\\s*(\\\\[a-zA-Z]+(?:\\{[^\\}]+\\})+|\\\\"+"(?:"+"|".join(math_command_whitelist_with_args)+")"+"\\s*\\S+)", "\\1{\\2}"),
                    # else match the rest
-                   ("([\\^_])(\\\\[a-zA-Z]+)([^a-zA-Z])", "\\1{\\2}\\3"),
+                   ("([\\^_])(?:\\\\n)*\\s*(\\\\[a-zA-Z]+)([^a-zA-Z])", "\\1{\\2}\\3"),
                    # no consecutive sub (super) scripts
                    ("(?P<s>[\\^_])([^\\{]|\\{[^\\}]+\\})(?P=s)([^\\{]|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
                    ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}"),

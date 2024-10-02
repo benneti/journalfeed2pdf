@@ -2,16 +2,17 @@
 import json # config file
 from os import getenv
 from pathlib import Path
+from xdg_base_dirs import xdg_config_home
 
 
 def load_config_file(name):
-    configPath = Path(getenv("XDG_CONFIG_HOME")) / "journalfeed"
+    configPath = Path(xdg_config_home()) / "journalfeed"
     configFile = configPath / name
     configDefault = Path(__file__).parent / name
     with configDefault.open("r") as f:
         config = json.load(f)
     # if local config exists ignore global config
-    if configPath.exits() and configFile.exists():
+    if configFile.exists():
         print(f"Loading local config \"{name}\".")
         with configFile.open("r") as f:
             config = json.load(f)

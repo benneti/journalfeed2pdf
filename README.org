@@ -61,7 +61,7 @@ Add an pure ASCII version of strings containing special characters!
 - Nature Journals: Using the TOC of the current issue (research, articles and letters sections)
 - Science Journals: Using the TOC of the current issue
 
-* Adding a Webside
+* Adding a Website
 write a module that provides a get_articles function that returns a list of Articles, see supported websites for examples, arguments and output formats
 
 * Requirements:

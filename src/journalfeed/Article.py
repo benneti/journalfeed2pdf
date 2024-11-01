@@ -46,7 +46,7 @@ class Article:
         elif len(authors) == 2:
             return authors[0]+" and "+authors[1]
         elif len(authors) <= max_authors:
-            return ", ".join(authors[0:max_authors-2])+", and "+authors[-1]
+            return ", ".join(authors[0:-1])+", and "+authors[-1]
         else:
             return authors[0]+", ..., and "+authors[-1]
 

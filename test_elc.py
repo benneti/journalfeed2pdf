@@ -24,6 +24,9 @@ class TestDetectBrockenCurlyBrackets():
 class TestMathEnvironment():
     def test_escaped_dollar(self):
         assert arxiv_summary("2205.04441v1").count("\\$") == arxiv_summary("2205.04441v1", el=False).count("\\$")
+    def test_multiple_equation_envs(self):
+        summary = arxiv_summary("2412.05428v1")
+        assert "$tag{A2}" in summary and ", $ po" in summary and "ate $R" in summary
     def test_unusual_bracket_placement(self):
         assert "{\\mathbb C}" in arxiv_summary("2204.13104v1")
         assert "${M}$" in arxiv_summary("2011.01389v1")

@@ -21,9 +21,14 @@ from bs4 import BeautifulSoup  # used to get rid of HTML stuff
 # Here we can configure
 # environmants for math
 math_envs = ["equation", "align"]
-math_matchers = ["(\\$)([^\\$]+)(\\$)", "(\\$\\$)([^\\$]+)(\\$\\$)",
+# we use non-greeedy (i.e. shortest repetition) "*?" to avoid combining math matches
+# additionally we use the negative lookahead for the other regexps
+# TODO consider simplifying this to non-greedy repetition
+math_matchers = ["(\\\\begin\\{(?P<env>"+"|".join(math_envs)+")\\*?\\})(.+?)(\\\\end\\{(?P=env)\\*?\\})",
                  "(\\\\\\[)((?:.(?!\\\\\\]))*.)(\\\\\\])", "(\\\\\\()((?:.(?!\\\\\\)))*.)(\\\\\\))",
-                 "(\\\\begin\\{(?P<env>"+"|".join(math_envs)+")\\*?\\})(.+(?!(?P=env)))(\\\\end\\{(?P=env)\\*?\\})"]
+                 "(\\$\\$)([^\\$]+)(\\$\\$)", "(\\$)([^\\$]+)(\\$)"]
+
+# TODO this could be more elegenat by only being one combined regex that always has the content in the same group!
 math_regex = re.compile("("+"|".join(math_matchers)+")", flags=re.DOTALL)
 
 # supports regexp (needs to be escaped accordingly)
@@ -89,6 +94,7 @@ math_env_whitelist = [ "cases", "matrix", "pmatrix", "array" ]
 
 # here we ensure no newlines and tabbing in math
 inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
+                   ("\\\\label\\{[^\\}]+\\}", ""), # strip labels as we convert to inline math
                    ("\\\\stackrel{\\^}", "\\\\hat"), # use hat instead of superscript here
                    ("(^|[^\\\\])%", "\\1\\\\%"),  # escape %
                    ("([^\\\\])#", "\\1\\\\%"),  # escape #
@@ -98,7 +104,7 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("\\\\right", ""),
                    ("\\\\textit", ""),  # textit is useless in math mode
                    # special treatment of frac for the below
-                   ("([\\^_])(\\\\frac\s*(\\\\[0-9a-zA-Z]+|[0-9a-zA-Z]){2})", "\\1{\\2}"), # frac without curly braces
+                   ("([\\^_])(\\\\frac\\s*(\\\\[0-9a-zA-Z]+|[0-9a-zA-Z]){2})", "\\1{\\2}"), # frac without curly braces
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"), # frac with curly braces
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    # if it is command with an argument

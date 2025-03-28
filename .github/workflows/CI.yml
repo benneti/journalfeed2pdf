@@ -24,4 +24,4 @@ jobs:
           pip install pytest pytest-cov
       - name: Test with pytest
         run: |
-          pytest -q test_elc.py
+          pytest -q tests/elc.py

@@ -31,7 +31,7 @@ class Article:
         self.title = _elc(title)
         self.url = url
         self.date = date
-        self.authors = [_elc(a).replace("}", "").replace("{", "") for a in authors]
+        self.authors = [_elc(a) for a in authors]
         self.summary = _elc(summary)
         self.journal = _elc(journal)
 
@@ -46,7 +46,7 @@ class Article:
         elif len(authors) == 2:
             return authors[0]+" and "+authors[1]
         elif len(authors) <= max_authors:
-            return ", ".join(authors[0:-1])+", and "+authors[-1]
+            return ", ".join(authors[0:-2])+", and "+authors[-1]
         else:
             return authors[0]+", ..., and "+authors[-1]
 

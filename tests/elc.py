@@ -1,5 +1,6 @@
-# run with pytest -q ./test_elc.py
 import pytest
+# run with pytest -q ./tests/elc.py from project dir
+# NOTE test functions must start with test, class with Test to be detected
 
 from src.journalfeed.LaTeX import *
 from src.journalfeed.config import load_config
@@ -9,17 +10,18 @@ import src.journalfeed.science as science
 import src.journalfeed.aps as aps
 import datetime
 
+def arxiv_article(aid, el=True):
+    return arxiv.get_articles(query="", id_list=aid, ensure_latex=el)[0]
 def arxiv_summary(aid, el=True):
-    return arxiv.get_articles(query="", id_list=aid, ensure_latex=el)[0].summary
+    return arxiv_article(aid, el).summary
 
-# functions must start with test, class with Test to be detected
 class TestDetectBrockenCurlyBrackets():
-  def test_not_all_escaped(self):
-      for aid in [ "2211.09329v1", "2106.00624v1" ]:
-          assert arxiv_summary(aid) == 'Curly braces not balanced.'
-  def test_problems_in_math(self):
-      for aid in [ "2205.15927v1", "2206.03707v1" ]:
-          assert arxiv_summary(aid) == 'Curly braces not balanced in inline math.'
+    def test_not_all_escaped(self):
+        for aid in [ "2211.09329v1", "2106.00624v1" ]:
+            assert arxiv_summary(aid) == 'Curly braces not balanced.'
+    def test_problems_in_math(self):
+        for aid in [ "2205.15927v1", "2206.03707v1" ]:
+            assert arxiv_summary(aid) == 'Curly braces not balanced in inline math.'
 
 class TestMathEnvironment():
     def test_escaped_dollar(self):
@@ -43,8 +45,7 @@ class TestMathEnvironment():
             assert sym in summary
         assert "_{\\mathcal{L}}" in arxiv_summary("2011.07246v1")
     def test_double_exponentiation(self):
-        # http://link.aps.org/doi/10.1103/PhysRevA.102.062805
-        "^{{2}{1}}" in elc("""$6{s}^{2}^{1}$""")
+        assert "^{{2}{1}}" in elc("""$6{s}^{2}^{1}$""")
     def test_html_escaping(self):
         s = """$\\text{spin}&gt;1/2$ quan..."""
         assert "$\\text{spin}>1/2$" in elc(s)
@@ -61,14 +62,18 @@ class TestMathEnvironment():
     def test_stackrel_superscript_to_hat(self):
         s = """intensive quantity ($\\stackrel{^}{p}$) that..."""
         assert "$\\hat{p}$" in elc(s)
-    def exponend_braceless_frac(self):
+    def test_exponend_braceless_frac(self):
         summary = arxiv_summary("2409.02121v1")
         assert "^{\\frac 12}" in summary
-    def very_strange_exponents(self):
+    def test_very_strange_exponents(self):
         summary = arxiv_summary("2409.15379v1")
         assert "\\mathcal{U}^{\\mathcal{H}} \\mathcal{U} neq \\mathcal{U} \\mathcal{U} ^{\\mathcal{H}}" in summary
 
 
 class TestOutsideMathEnvironment():
-    def hat_outside_math(self):
+    def test_hat_outside_math(self):
         assert "\\textasciicircum" in elc('chirality $\\stackrel{^}{\\mathbf{n}}⋅(\\…')
+
+class TestAuthors():
+    def test_name_with_tex_command(self):
+        assert "Si{\\textasciicircum}an" in  arxiv_article("2503.18833v1").authors[-1]

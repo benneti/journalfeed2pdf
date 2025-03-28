@@ -2,12 +2,20 @@ import pytest
 # run with pytest -q ./tests/elc.py from project dir
 # NOTE test functions must start with test, class with Test to be detected
 
-from src.journalfeed.LaTeX import *
-from src.journalfeed.config import load_config
-import src.journalfeed.arxiv as arxiv
-import src.journalfeed.nature as nature
-import src.journalfeed.science as science
-import src.journalfeed.aps as aps
+# incase the module is not in the loadpath try to load it
+try:
+    import sys
+    sys.path.append("..")
+    from src import *
+except:
+    print("Could not load local module, continuing")
+
+from journalfeed.LaTeX import *
+from journalfeed.config import load_config
+import journalfeed.arxiv as arxiv
+import journalfeed.nature as nature
+import journalfeed.science as science
+import journalfeed.aps as aps
 import datetime
 
 def arxiv_article(aid, el=True):

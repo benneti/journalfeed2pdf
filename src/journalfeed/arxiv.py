@@ -31,14 +31,20 @@ def get_articles(enddate=datetime.date.today(),
             url += "submittedDate:["+startdate.strftime("%Y%m%d")+"0000+TO+"+enddate.strftime("%Y%m%d")+"0000]"
         url += "&start="+str(100*len(feeds))+"&max_results=100&sortBy=submittedDate&sortOrder=descending"
         feeds.append(fp.parse(url))
-        totalresults = int(feeds[-1]["feed"]["opensearch_totalresults"])
-        if totalresults == 0 or len(feeds[-1].entries) == 0:
-            # something has gone wrong
+        try:
+            totalresults = int(feeds[-1]["feed"]["opensearch_totalresults"])
+            if totalresults == 0 or len(feeds[-1].entries) == 0:
+                # something has gone wrong
+                retry += 1
+                del feeds[-1]  # remove the last entry
+            else:
+                # it seems ok now reset the retry counter
+                retry = 0
+            if len(feeds) * 100 >= totalresults or retry > 20:
+                cond = False
+        except:
             retry += 1
             del feeds[-1]  # remove the last entry
-            cond = True
-        if len(feeds) * 100 >= totalresults or retry > 5:
-            cond = False
         if cond:  # arxiv asks users to wait for 3 seconds between queries
             time.sleep(3)
 

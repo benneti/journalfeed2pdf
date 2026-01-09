@@ -26,7 +26,7 @@ def get_articles(enddate = datetime.date.today(),
                 authors = []
                 try:
                     for aths in e.authors:
-                        aths = aths["name"].strip().replace(".\u2009T.", ".").replace(" and ", ", ")
+                        aths = aths["name"].strip().replace(".\u2009T.", ".").replace(" and ", ", ").replace("\n", "")
                         for author in aths.split(", "):
                             author = author.strip()
                             if author != "":

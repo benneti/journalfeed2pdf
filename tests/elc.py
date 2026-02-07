@@ -46,10 +46,10 @@ class TestMathEnvironment():
         assert "\\cdot \\text" in arxiv_summary("2010.15264")
         assert "\\simeq 152" in arxiv_summary("2011.03015v1")
         assert "\\mathcal{PT}" in arxiv_summary("2011.02114v1")
-        assert "$m\\Omega /\\hbar k_{\\ell}^2<1$" in arxiv_summary("2011.00478v1")
+        assert "$mΩ/\\hbar k_{\\ell}^2<1$" in arxiv_summary("2011.00478v1")
     def test_various_symbols(self):
         summary = arxiv_summary("2010.15589v1")
-        for sym in [ "\\lambda=", "\\hbar \\omega", "\\mathbf{r}" ]:
+        for sym in [ "λ=", "hbarω", "\\mathbf{r}" ]:
             assert sym in summary
         assert "_{\\mathcal{L}}" in arxiv_summary("2011.07246v1")
     def test_double_exponentiation(self):
@@ -62,7 +62,7 @@ class TestMathEnvironment():
     def test_expectation_value_that_could_be_a_html_tag(self):
         assert not "$$" in arxiv_summary("2303.14053v1")
     def test_greek_letter_in_index(self):
-        assert "\\Lambda_{\\beta}" in arxiv_summary("2304.14099v1")
+        assert "Λ_β" in arxiv_summary("2304.14099v1")
     def test_sub_or_super_script_ending_math(self):
         assert "\\^$" in arxiv_summary("2304.12924v1")
     def test_already_escaped_sub_or_super_script_ending_math(self):

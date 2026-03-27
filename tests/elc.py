@@ -1,4 +1,5 @@
 import pytest
+import time
 # run with pytest -q ./tests/elc.py from project dir
 # NOTE test functions must start with test, class with Test to be detected
 
@@ -66,16 +67,20 @@ class TestMathEnvironment():
     def test_sub_or_super_script_ending_math(self):
         assert "\\^$" in arxiv_summary("2304.12924v1")
     def test_already_escaped_sub_or_super_script_ending_math(self):
-        assert "$\\_$" in arxiv_summary("2306.06943v1")
+        summary = arxiv_summary("2306.06943v1")
+        assert "$\\_$" in summary
     def test_stackrel_superscript_to_hat(self):
         s = """intensive quantity ($\\stackrel{^}{p}$) that..."""
         assert "$\\hat{p}$" in elc(s)
-    def test_exponend_braceless_frac(self):
+    def test_exponent_braceless_frac(self):
         summary = arxiv_summary("2409.02121v1")
         assert "^{\\frac 12}" in summary
     def test_very_strange_exponents(self):
         summary = arxiv_summary("2409.15379v1")
         assert "\\mathcal{U}^{\\mathcal{H}} \\mathcal{U} neq \\mathcal{U} \\mathcal{U} ^{\\mathcal{H}}" in summary
+    def test_exponent_partially_braceless_frac_with_unicode_greek(self):
+        summary = arxiv_summary("2603.24151v1")
+        assert "^{\\frac{2(1-γ)}γ}" in summary
 
 
 class TestOutsideMathEnvironment():

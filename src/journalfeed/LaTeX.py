@@ -104,13 +104,15 @@ inside_math_sub = [("\\\\\\\\", "\\\\ "),  # newline to space
                    ("\\\\right", ""),
                    ("\\\\textit", ""),  # textit is useless in math mode
                    # special treatment of frac for the below
-                   ("([\\^_])(\\\\frac\\s*(\\\\[0-9a-zA-Z]+|[0-9a-zA-Z]){2})", "\\1{\\2}"), # frac without curly braces
+                   ("([\\^_])(\\\\frac(\\s*(\\\\[0-9a-zA-Z]+\\s|[0-9a-zA-Zα-ωΑ-Ω])){2})", "\\1{\\2}"), # frac without curly braces
+                   ("([\\^_])(\\\\frac\\s*\\{[^\\}]+\\}\\s*(\\\\[0-9a-zA-Z]+\\s|[0-9a-zA-Zα-ωΑ-Ω]))", "\\1{\\2}"), # frac with one (first) curly braces
+                   ("([\\^_])(\\\\frac\\s*(\\\\[0-9a-zA-Z]+\\s|[0-9a-zA-Zα-ωΑ-Ω])\\s*\\{[^\\}]+\\})", "\\1{\\2}"), # frac with one (first) curly braces
                    ("([\\^_])(\\\\frac\\{[^\\}]+\\}\\{[^\\}]+\\})", "\\1{\\2}"), # frac with curly braces
                    # ensure that commands that are supposed to be an index/exponent are wrapped in curly braces
                    # if it is command with an argument
                    ("([\\^_])(?:\\\\n)*\\s*(\\\\[a-zA-Z]+(?:\\{[^\\}]+\\})+|\\\\"+"(?:"+"|".join(math_command_whitelist_with_args)+")"+"\\s*\\S+)", "\\1{\\2}"),
                    # else match the rest
-                   ("([\\^_])(?:\\\\n)*\\s*(\\\\[a-zA-Z]+)([^a-zA-Z])", "\\1{\\2}\\3"),
+                   ("([\\^_])(?:\\\\n)*\\s*(\\\\[a-zA-Z]+)([^a-zA-Zα-ωΑ-Ω])", "\\1{\\2}\\3"),
                    # no consecutive sub (super) scripts
                    ("(?P<s>[\\^_])([^\\{]|\\{[^\\}]+\\})(?P=s)([^\\{]|\\{[^\\}]+\\})", "\\1{\\2\\3}"),
                    ("\\{\\\\bf\\s([^}]+)\\}", "\\\\mathbf{\\1}"),
